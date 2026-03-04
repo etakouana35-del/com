@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ets GOOD DAV NET</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+.neon {
+    text-shadow:
+        0 0 5px #00ffff,
+        0 0 10px #00ffff,
+        0 0 20px #00ffff,
+        0 0 40px #00ffff;
+    animation: glow 1.5s infinite alternate;
+}
+@keyframes glow {
+    from { text-shadow: 0 0 5px #00ffff; }
+    to { text-shadow: 0 0 25px #00ffff; }
+}
+.card-neon {
+    box-shadow: 0 0 8px #00ffff33;
+    transition: 0.3s;
+}
+.card-neon:hover {
+    box-shadow: 0 0 20px #00ffffaa;
+    transform: scale(1.03);
+}
+</style>
+</head>
+
+<body class="bg-black text-white p-6 relative">
+
+<div class="absolute top-12 left-6">
+<img src="https://i.ibb.co/SD0r6k00/Image1.jpg" 
+class="w-20 rounded shadow-lg">
+</div>
+
+<h1 class="text-4xl font-extrabold mb-4 text-center neon">
+Télécharger vos supports de cours
+</h1>
+
+<h2 class="text-3xl font-bold mb-6 text-center neon">
+Ets GOOD DAV NET
+</h2>
+
+<div class="flex justify-center gap-4 mb-6">
+<button onclick="authAction(addProduct,'admin')" 
+class="bg-cyan-600 px-4 py-2 rounded text-sm">Ajouter</button>
+
+<button onclick="authAction(showOrders,'admin')" 
+class="bg-purple-600 px-4 py-2 rounded text-sm">PANNEAUX</button>
+</div>
+
+<!-- PANIER -->
+<div class="fixed top-5 right-5 bg-gray-900 p-3 rounded text-xs card-neon">
+🛒 Panier: <span id="cartCount">0</span> articles<br>
+💰 Total: <span id="cartTotal">0</span> XOF
+<button onclick="clearCart()" class="bg-red-600 px-2 py-1 rounded mt-2 text-xs w-full">Vider</button>
+</div>
+
+<div id="productGrid" class="grid md:grid-cols-5 gap-3"></div>
+
+<!-- MODAL ADMIN -->
+<div id="ordersModal" class="hidden fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-50">
+<div class="bg-gray-900 p-6 rounded w-11/12 max-w-5xl overflow-auto max-h-[90vh]">
+
+<h2 class="text-2xl text-cyan-400 mb-4 text-center neon">Panneau Admin</h2>
+
+<div class="mb-4 p-3 bg-gray-800 rounded text-sm">
+<label>Nouveau mot de passe Admin</label>
+<input id="newAdminPwd" class="w-full p-2 rounded text-black mb-2">
+<button onclick="changeAdminPwd()" class="bg-cyan-600 px-3 py-1 rounded">Modifier</button>
+
+<label class="block mt-3">Mot de passe Téléchargement</label>
+<input id="newDownloadPwd" class="w-full p-2 rounded text-black mb-2">
+<button onclick="changeDownloadPwd()" class="bg-cyan-600 px-3 py-1 rounded">Modifier</button>
+</div>
+
+<div id="ordersContainer" class="mt-4 text-xs"></div>
+
+<button onclick="deleteAllOrders()" 
+class="w-full bg-red-700 p-2 rounded mt-3 text-sm">
+Supprimer les commandes
+</button>
+
+<button onclick="closeOrders()" 
+class="w-full bg-red-600 p-2 rounded mt-4 text-sm">
+Fermer
+</button>
+
+</div>
+</div>
+
+<!-- MODAL COMMANDE -->
+<div id="orderModal" class="hidden fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-50">
+<div class="bg-gray-900 p-6 rounded w-11/12 max-w-lg">
+
+<h2 class="text-blue-400 text-center font-bold mb-4">
+Envoyez vos commandes ici par whatsApp et PAYER sur le 01-44-83-24-64 ou 01-47-44-24-15 au nom de ETAKOUANA DAVID
+</h2>
+
+<input id="clientAddress" placeholder="Votre adresse"
+class="w-full p-2 mb-3 rounded text-black">
+
+<input id="clientPhone" placeholder="Votre numéro de téléphone"
+class="w-full p-2 mb-3 rounded text-black">
+
+<button onclick="sendOrderWhatsApp()"
+class="w-full bg-green-600 p-2 rounded text-sm">
+Envoyer la commande
+</button>
+
+<button onclick="closeOrderModal()"
+class="w-full bg-red-600 p-2 rounded text-sm mt-2">
+Annuler
+</button>
+
+</div>
+</div>
+
+<script>
+const ADMIN_KEY="admin_password_secure";
+const DOWNLOAD_KEY="download_password_secure";
+
+if(!localStorage.getItem(ADMIN_KEY)) localStorage.setItem(ADMIN_KEY,"95391036");
+if(!localStorage.getItem(DOWNLOAD_KEY)) localStorage.setItem(DOWNLOAD_KEY,"52522");
+
+let products=JSON.parse(localStorage.getItem("products"))||[];
+let cart=JSON.parse(localStorage.getItem("cart"))||[];
+let orders=JSON.parse(localStorage.getItem("orders"))||[];
+let selectedProductIndex=null;
+
+function authAction(callback,type){
+let pwd=prompt("Mot de passe :");
+if(type==='admin' && pwd===localStorage.getItem(ADMIN_KEY)) callback();
+else if(type==='download' && pwd===localStorage.getItem(DOWNLOAD_KEY)) callback();
+else alert("Mot de passe incorrect");
+}
+
+function saveProducts(){
+localStorage.setItem("products",JSON.stringify(products));
+}
+
+function saveCart(){
+localStorage.setItem("cart",JSON.stringify(cart));
+updateCartUI();
+}
+
+function updateCartUI(){
+let total=0;
+cart.forEach(p=> total+=parseInt(p.price||0));
+document.getElementById("cartCount").innerText=cart.length;
+document.getElementById("cartTotal").innerText=total;
+}
+
+function renderProducts(){
+let grid=document.getElementById("productGrid");
+grid.innerHTML="";
+products.forEach((p,i)=>{
+grid.innerHTML+=`
+<div class="bg-gray-800 p-2 rounded text-xs card-neon">
+${p.image ? `<img src="${p.image}" class="w-full h-24 object-cover rounded mb-2">` : ""}
+<h3 class="font-bold">${p.title}</h3>
+<p class="text-gray-400 truncate">${p.description||""}</p>
+<p class="text-cyan-400">${p.price} XOF</p>
+<button onclick="openOrderModal(${i})" class="w-full bg-green-600 mt-1 p-1 rounded text-xs">Ajouter au panier</button>
+<button onclick="authAction(()=>downloadFile(${i}),'download')" class="w-full bg-indigo-600 mt-1 p-1 rounded text-xs">Télécharger</button>
+<button onclick="authAction(()=>editProduct(${i}),'admin')" class="w-full bg-yellow-500 mt-1 p-1 rounded text-xs">Éditer</button>
+</div>`;
+});
+}
+
+function deleteAllOrders(){
+if(!confirm("Voulez-vous vraiment supprimer toutes les commandes ?")) return;
+orders=[];
+localStorage.setItem("orders",JSON.stringify(orders));
+document.getElementById("ordersContainer").innerHTML="<h3 class='text-cyan-400 mb-2'>Commandes reçues</h3><p>Aucune commande</p>";
+alert("Toutes les commandes ont été supprimées !");
+}
+
+function openOrderModal(i){
+selectedProductIndex=i;
+document.getElementById("orderModal").classList.remove("hidden");
+}
+
+function closeOrderModal(){
+document.getElementById("orderModal").classList.add("hidden");
+document.getElementById("clientAddress").value="";
+document.getElementById("clientPhone").value="";
+}
+
+function sendOrderWhatsApp(){
+let address=document.getElementById("clientAddress").value;
+let phone=document.getElementById("clientPhone").value;
+if(!address || !phone){ alert("Veuillez remplir tous les champs"); return; }
+
+let product=products[selectedProductIndex];
+
+let message=
+"Nouvelle commande %0A"+
+"Produit: "+product.title+"%0A"+
+"Prix: "+product.price+" XOF%0A"+
+"Adresse: "+address+"%0A"+
+"Téléphone: "+phone;
+
+window.open("https://wa.me/2290144832464?text="+message,"_blank");
+
+orders.push({
+product:product.title,
+price:product.price,
+address:address,
+phone:phone,
+date:new Date().toLocaleString()
+});
+
+localStorage.setItem("orders",JSON.stringify(orders));
+closeOrderModal();
+alert("Commande envoyée avec succès !");
+}
+
+function addProduct(){
+let t=prompt("Titre"); if(!t) return;
+let d=prompt("Description");
+let p=prompt("Prix");
+let img=prompt("Lien image aperçu (URL)");
+let f=prompt("Lien fichier (PDF, ZIP, Vidéo, etc)");
+products.push({title:t,description:d,price:p,image:img,file:f});
+saveProducts();
+renderProducts();
+}
+
+function editProduct(i){
+let p=products[i];
+p.title=prompt("Modifier titre",p.title)||p.title;
+p.description=prompt("Modifier description",p.description)||p.description;
+p.price=prompt("Modifier prix",p.price)||p.price;
+p.image=prompt("Modifier image",p.image)||p.image;
+p.file=prompt("Modifier fichier",p.file)||p.file;
+saveProducts();
+renderProducts();
+}
+
+function clearCart(){ cart=[]; saveCart(); }
+
+function downloadFile(i){
+let p=products[i];
+if(p.file) window.open(p.file,"_blank");
+}
+
+function changeAdminPwd(){
+let newPwd=document.getElementById("newAdminPwd").value;
+if(newPwd) localStorage.setItem(ADMIN_KEY,newPwd);
+alert("Mot de passe Admin modifié");
+}
+
+function changeDownloadPwd(){
+let newPwd=document.getElementById("newDownloadPwd").value;
+if(newPwd) localStorage.setItem(DOWNLOAD_KEY,newPwd);
+alert("Mot de passe Téléchargement modifié");
+}
+
+function showOrders(){
+document.getElementById("ordersModal").classList.remove("hidden");
+let container=document.getElementById("ordersContainer");
+container.innerHTML="<h3 class='text-cyan-400 mb-2'>Commandes reçues</h3>";
+orders=JSON.parse(localStorage.getItem("orders"))||[];
+orders.forEach(o=>{
+container.innerHTML+=`
+<div class="bg-gray-800 p-2 rounded mb-2">
+Produit: ${o.product}<br>
+Prix: ${o.price} XOF<br>
+Adresse: ${o.address}<br>
+Téléphone: ${o.phone}<br>
+Date: ${o.date}
+</div>`;
+});
+}
+
+function closeOrders(){
+document.getElementById("ordersModal").classList.add("hidden");
+}
+
+renderProducts();
+updateCartUI();
+</script>
+
+</body>
+</html>
