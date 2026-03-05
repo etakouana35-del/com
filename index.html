@@ -215,6 +215,17 @@ file:"https://mega.nz/file/t6gBFaYK#ilIZxBATG_FWEcm4HDISVNkijBJoVwFFVQA2rmn2Trg"
 });
 saveProducts();
 }
+// Ajouter automatiquement la vidéo installation Python
+if(!products.find(p => p.title === "Vidéo sur l'installation de python et la création d'un fichier py")){
+products.push({
+title:"Vidéo sur l'installation de python et la création d'un fichier py",
+description:"Formation vidéo complète expliquant l'installation de Python et la création d’un premier fichier .py étape par étape.",
+price:"1000",
+image:"https://i.ibb.co/7NyJsxJH/Chat-GPT-Image-5-mars-2026-01-44-33.png",
+file:"https://mega.nz/file/hiZGRSZY#FcC5SAmt1-TmfIY-R8hZeniAy24sr1HP0azurL2jCKo"
+});
+saveProducts();
+}
 /* =============================== */
 
 renderProducts();
