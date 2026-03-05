@@ -232,6 +232,41 @@ renderProducts();
 updateCartUI();
 
 </script>
-<script src="https://etakouana35-del.github.io/pubV/ads.js"></script>
+document.addEventListener("DOMContentLoaded", () => {
+    // Liste des publicités
+    const adsData = [
+        { type: "link", url: "https://etakouana35-del.github.io/l/" },
+        { type: "link", url: "https://etakouana35-del.github.io/com/" },
+        { type: "link", url: "https://etsgooddavnet-dot.github.io/r/" },
+        { type: "video", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
+        { type: "video", url: "https://www.w3schools.com/html/mov_bbb.mp4", loop: true }
+    ];
+
+    // Récupérer la liste des pubs déjà ouvertes dans le localStorage
+    let openedAds = JSON.parse(localStorage.getItem("openedAds") || "[]");
+
+    adsData.forEach(ad => {
+        // Si la pub n'a jamais été ouverte
+        if (!openedAds.includes(ad.url)) {
+            if (ad.type === "link") {
+                window.open(ad.url, "_blank");
+            } else if (ad.type === "video") {
+                const videoWin = window.open("", "_blank");
+                videoWin.document.write(`
+                    <html>
+                    <head><title>Publicité</title></head>
+                    <body style="margin:0; background:#000;">
+                        <video src="${ad.url}" ${ad.loop ? "loop" : ""} autoplay controls style="width:100%; height:100vh;"></video>
+                    </body>
+                    </html>
+                `);
+            }
+
+            // Ajouter cette pub à la liste des pubs ouvertes
+            openedAds.push(ad.url);
+            localStorage.setItem("openedAds", JSON.stringify(openedAds));
+        }
+    });
+});
 </body>
 </html>
