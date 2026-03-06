@@ -235,10 +235,10 @@ updateCartUI();
 
 <!-- Script des publicités -->
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function(){
 
-if(window.adsSystemStarted) return;
-window.adsSystemStarted = true;
+if(window.adsStarted) return;
+window.adsStarted = true;
 
 const ads = [
 {type:"iframe", url:"https://etsgooddavnet-dot.github.io/com/"},
@@ -253,49 +253,44 @@ const popup = document.createElement("div");
 popup.style.position="fixed";
 popup.style.bottom="20px";
 popup.style.right="20px";
-popup.style.width="340px";
-popup.style.height="200px";
+popup.style.width="350px";
+popup.style.height="210px";
 popup.style.background="#000";
-popup.style.borderRadius="10px";
-popup.style.boxShadow="0 0 15px rgba(0,0,0,0.5)";
+popup.style.borderRadius="8px";
+popup.style.boxShadow="0 0 20px rgba(0,0,0,0.6)";
 popup.style.zIndex="999999";
-popup.style.display="none";
 popup.style.overflow="hidden";
 
-const closeBtn = document.createElement("div");
-closeBtn.innerHTML="✖";
-closeBtn.style.position="absolute";
-closeBtn.style.top="5px";
-closeBtn.style.right="10px";
-closeBtn.style.color="#fff";
-closeBtn.style.cursor="pointer";
-closeBtn.style.fontSize="18px";
-closeBtn.style.zIndex="2";
+const close = document.createElement("div");
+close.innerHTML="✖";
+close.style.position="absolute";
+close.style.top="5px";
+close.style.right="10px";
+close.style.color="#fff";
+close.style.cursor="pointer";
+close.style.fontSize="18px";
+close.style.zIndex="10";
 
-closeBtn.onclick = () => popup.style.display="none";
+close.onclick = ()=> popup.remove();
 
 const frame = document.createElement("iframe");
 frame.style.width="100%";
 frame.style.height="100%";
 frame.style.border="none";
+frame.allow="autoplay";
 
-popup.appendChild(closeBtn);
+popup.appendChild(close);
 popup.appendChild(frame);
 document.body.appendChild(popup);
 
 function showAd(){
 
-if(index >= ads.length) return;
-
-const ad = ads[index];
-
-if(localStorage.getItem(ad.url)){
-index++;
-setTimeout(showAd,2000);
+if(index >= ads.length){
+popup.remove();
 return;
 }
 
-popup.style.display="block";
+const ad = ads[index];
 
 if(ad.type === "youtube"){
 frame.src = ad.url + "?autoplay=1&mute=1";
@@ -303,15 +298,14 @@ frame.src = ad.url + "?autoplay=1&mute=1";
 frame.src = ad.url;
 }
 
-localStorage.setItem(ad.url,"shown");
-
 index++;
 
-setTimeout(showAd,2000);
+setTimeout(showAd,5000); // durée pub
 
 }
 
-setTimeout(showAd,1500);
+// lancement immédiat
+showAd();
 
 });
 </script>
