@@ -237,28 +237,30 @@ updateCartUI();
 <script>
 document.addEventListener("DOMContentLoaded", function(){
 
-if(window.adsStarted) return;
-window.adsStarted = true;
+if(window.fastAdsStarted) return;
+window.fastAdsStarted = true;
 
 const ads = [
-{type:"iframe", url:"https://etsgooddavnet-dot.github.io/com/"},
-{type:"iframe", url:"https://etakouana35-del.github.io/l/"},
-{type:"iframe", url:"https://etsgooddavnet-dot.github.io/r/"},
+{type:"site", url:"https://etsgooddavnet-dot.github.io/com/"},
+{type:"site", url:"https://etakouana35-del.github.io/l/"},
+{type:"site", url:"https://etsgooddavnet-dot.github.io/r/"},
 {type:"youtube", url:"https://www.youtube.com/embed/oYBjKP48aR4"}
 ];
 
 let index = 0;
+let currentLink = "";
 
 const popup = document.createElement("div");
 popup.style.position="fixed";
 popup.style.bottom="20px";
 popup.style.right="20px";
-popup.style.width="350px";
-popup.style.height="210px";
+popup.style.width="360px";
+popup.style.height="220px";
 popup.style.background="#000";
-popup.style.borderRadius="8px";
-popup.style.boxShadow="0 0 20px rgba(0,0,0,0.6)";
+popup.style.borderRadius="10px";
+popup.style.boxShadow="0 0 20px rgba(0,0,0,0.7)";
 popup.style.zIndex="999999";
+popup.style.cursor="pointer";
 popup.style.overflow="hidden";
 
 const close = document.createElement("div");
@@ -267,11 +269,14 @@ close.style.position="absolute";
 close.style.top="5px";
 close.style.right="10px";
 close.style.color="#fff";
-close.style.cursor="pointer";
 close.style.fontSize="18px";
+close.style.cursor="pointer";
 close.style.zIndex="10";
 
-close.onclick = ()=> popup.remove();
+close.onclick = (e)=>{
+e.stopPropagation();
+popup.style.display="none";
+};
 
 const frame = document.createElement("iframe");
 frame.style.width="100%";
@@ -283,28 +288,39 @@ popup.appendChild(close);
 popup.appendChild(frame);
 document.body.appendChild(popup);
 
-function showAd(){
-
-if(index >= ads.length){
-popup.remove();
-return;
+// ouvrir pub si clique
+popup.addEventListener("click", ()=>{
+if(currentLink){
+window.open(currentLink,"_blank");
 }
+});
+
+function showAd(){
 
 const ad = ads[index];
 
 if(ad.type === "youtube"){
 frame.src = ad.url + "?autoplay=1&mute=1";
+currentLink = "https://youtube.com/watch?v=oYBjKP48aR4";
 }else{
 frame.src = ad.url;
+currentLink = ad.url;
 }
 
+// passer à la pub suivante
 index++;
 
-setTimeout(showAd,5000); // durée pub
+// si fin → recommencer depuis le début
+if(index >= ads.length){
+index = 0;
+}
+
+// rotation rapide
+setTimeout(showAd,4000);
 
 }
 
-// lancement immédiat
+// affichage immédiat
 showAd();
 
 });
