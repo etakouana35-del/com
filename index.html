@@ -232,41 +232,40 @@ renderProducts();
 updateCartUI();
 
 </script>
+
+<!-- Script des publicités -->
+<script>
 document.addEventListener("DOMContentLoaded", () => {
-    // Liste des publicités
     const adsData = [
-        { type: "link", url: "https://etakouana35-del.github.io/l/" },
-        { type: "link", url: "https://etakouana35-del.github.io/com/" },
-        { type: "link", url: "https://etsgooddavnet-dot.github.io/r/" },
-        { type: "video", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
-        { type: "video", url: "https://www.w3schools.com/html/mov_bbb.mp4", loop: true }
+        { type: "video", url: "https://youtu.be/oYBjKP48aR4?list=TLGGOB86ImZDzGswNTAzMjAyNg" },
+        { type: "video", url: "https://youtu.be/example2" },
+        { type: "link", url: "https://etakouana35-del.github.io/com/" }
+        // ajoute toutes tes pubs ici
     ];
 
-    // Récupérer la liste des pubs déjà ouvertes dans le localStorage
-    let openedAds = JSON.parse(localStorage.getItem("openedAds") || "[]");
+    let displayed = new Set();
+    let index = 0;
 
-    adsData.forEach(ad => {
-        // Si la pub n'a jamais été ouverte
-        if (!openedAds.includes(ad.url)) {
-            if (ad.type === "link") {
-                window.open(ad.url, "_blank");
-            } else if (ad.type === "video") {
-                const videoWin = window.open("", "_blank");
-                videoWin.document.write(`
-                    <html>
-                    <head><title>Publicité</title></head>
-                    <body style="margin:0; background:#000;">
-                        <video src="${ad.url}" ${ad.loop ? "loop" : ""} autoplay controls style="width:100%; height:100vh;"></video>
-                    </body>
-                    </html>
-                `);
+    function showNextAd() {
+        if (index >= adsData.length) return; // toutes les pubs affichées
+
+        const ad = adsData[index];
+
+        // Ouvre la pub selon le type
+        if (ad.type === "video" || ad.type === "link") {
+            const win = window.open(ad.url, "_blank");
+            if(win) {
+                displayed.add(ad.url);
             }
-
-            // Ajouter cette pub à la liste des pubs ouvertes
-            openedAds.push(ad.url);
-            localStorage.setItem("openedAds", JSON.stringify(openedAds));
         }
-    });
+
+        index++;
+        // Passe à la pub suivante après 2 secondes
+        setTimeout(showNextAd, 2000);
+    }
+
+    showNextAd(); // lance la rotation
 });
+</script>
 </body>
 </html>
