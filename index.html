@@ -260,7 +260,6 @@ popup.style.background="#000";
 popup.style.borderRadius="10px";
 popup.style.boxShadow="0 0 20px rgba(0,0,0,0.7)";
 popup.style.zIndex="999999";
-popup.style.cursor="pointer";
 popup.style.overflow="hidden";
 
 const close = document.createElement("div");
@@ -271,7 +270,7 @@ close.style.right="10px";
 close.style.color="#fff";
 close.style.fontSize="18px";
 close.style.cursor="pointer";
-close.style.zIndex="10";
+close.style.zIndex="20";
 
 close.onclick = (e)=>{
 e.stopPropagation();
@@ -284,16 +283,28 @@ frame.style.height="100%";
 frame.style.border="none";
 frame.allow="autoplay";
 
-popup.appendChild(close);
-popup.appendChild(frame);
-document.body.appendChild(popup);
+const overlay = document.createElement("div");
+overlay.style.position="absolute";
+overlay.style.top="0";
+overlay.style.left="0";
+overlay.style.width="100%";
+overlay.style.height="100%";
+overlay.style.cursor="pointer";
+overlay.style.zIndex="10";
+overlay.style.background="transparent";
 
-// ouvrir pub si clique
-popup.addEventListener("click", ()=>{
+// clic → ouvrir la pub
+overlay.onclick = ()=>{
 if(currentLink){
 window.open(currentLink,"_blank");
 }
-});
+};
+
+popup.appendChild(frame);
+popup.appendChild(overlay);
+popup.appendChild(close);
+
+document.body.appendChild(popup);
 
 function showAd(){
 
@@ -307,20 +318,16 @@ frame.src = ad.url;
 currentLink = ad.url;
 }
 
-// passer à la pub suivante
 index++;
 
-// si fin → recommencer depuis le début
 if(index >= ads.length){
 index = 0;
 }
 
-// rotation rapide
 setTimeout(showAd,4000);
 
 }
 
-// affichage immédiat
 showAd();
 
 });
