@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -236,46 +235,83 @@ updateCartUI();
 
 <!-- Script des publicités -->
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function () {
 
-if(window.adsStarted) return;
-window.adsStarted = true;
+if(window.adsSystemStarted) return;
+window.adsSystemStarted = true;
 
-const adsData = [
-    { type:"video", url:"https://etsgooddavnet-dot.github.io/com/" },
-    { type:"video", url:"https://etakouana35-del.github.io/l/" },
-    { type:"link", url:"https://etsgooddavnet-dot.github.io/r/" },
-    { type:"link", url:"https://youtu.be/oYBjKP48aR4?list=TLGGOB86ImZDzGswNjAzMjAyNg" }
+const ads = [
+{type:"iframe", url:"https://etsgooddavnet-dot.github.io/com/"},
+{type:"iframe", url:"https://etakouana35-del.github.io/l/"},
+{type:"iframe", url:"https://etsgooddavnet-dot.github.io/r/"},
+{type:"youtube", url:"https://www.youtube.com/embed/oYBjKP48aR4"}
 ];
 
 let index = 0;
 
-function showNextAd(){
+const popup = document.createElement("div");
+popup.style.position="fixed";
+popup.style.bottom="20px";
+popup.style.right="20px";
+popup.style.width="340px";
+popup.style.height="200px";
+popup.style.background="#000";
+popup.style.borderRadius="10px";
+popup.style.boxShadow="0 0 15px rgba(0,0,0,0.5)";
+popup.style.zIndex="999999";
+popup.style.display="none";
+popup.style.overflow="hidden";
 
-    if(index >= adsData.length){
-        return;
-    }
+const closeBtn = document.createElement("div");
+closeBtn.innerHTML="✖";
+closeBtn.style.position="absolute";
+closeBtn.style.top="5px";
+closeBtn.style.right="10px";
+closeBtn.style.color="#fff";
+closeBtn.style.cursor="pointer";
+closeBtn.style.fontSize="18px";
+closeBtn.style.zIndex="2";
 
-    const ad = adsData[index];
+closeBtn.onclick = () => popup.style.display="none";
 
-    // vérifier si la pub a déjà été ouverte
-    if(!localStorage.getItem(ad.url)){
+const frame = document.createElement("iframe");
+frame.style.width="100%";
+frame.style.height="100%";
+frame.style.border="none";
 
-        let win = window.open(ad.url,"_blank");
+popup.appendChild(closeBtn);
+popup.appendChild(frame);
+document.body.appendChild(popup);
 
-        if(win){
-            localStorage.setItem(ad.url,"opened");
-        }
+function showAd(){
 
-    }
+if(index >= ads.length) return;
 
-    index++;
+const ad = ads[index];
 
-    setTimeout(showNextAd,2000);
+if(localStorage.getItem(ad.url)){
+index++;
+setTimeout(showAd,2000);
+return;
 }
 
-// démarrage
-setTimeout(showNextAd,1500);
+popup.style.display="block";
+
+if(ad.type === "youtube"){
+frame.src = ad.url + "?autoplay=1&mute=1";
+}else{
+frame.src = ad.url;
+}
+
+localStorage.setItem(ad.url,"shown");
+
+index++;
+
+setTimeout(showAd,2000);
+
+}
+
+setTimeout(showAd,1500);
 
 });
 </script>
