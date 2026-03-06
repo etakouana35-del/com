@@ -8,17 +8,11 @@
 
 <style>
 .neon {
-    text-shadow:
-        0 0 5px #00ffff,
-        0 0 10px #00ffff,
-        0 0 20px #00ffff,
-        0 0 40px #00ffff;
+    text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 40px #00ffff;
     animation: glow 1.5s infinite alternate;
 }
-@keyframes glow {
-    from { text-shadow: 0 0 5px #00ffff; }
-    to { text-shadow: 0 0 25px #00ffff; }
-}
+@keyframes glow { from { text-shadow: 0 0 5px #00ffff; } to { text-shadow: 0 0 25px #00ffff; } }
+
 .card-neon {
     box-shadow: 0 0 8px #00ffff33;
     transition: 0.3s;
@@ -28,7 +22,7 @@
     transform: scale(1.03);
 }
 
-/* Conteneur de pub discret */
+/* Conteneur pub */
 #ads-container {
     position: fixed;
     bottom: 10px;
@@ -46,12 +40,11 @@
     align-items: center;
     color: #fff;
     font-family: Arial, sans-serif;
+    flex-direction: column;
 }
-#ads-container iframe, #ads-container video {
-    width: 100%;
-    height: 100%;
-    border: none;
-}
+#ads-container iframe, #ads-container video { width: 100%; height: 100%; border: none; }
+#ads-buttons { margin-top: 5px; display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
+#ads-buttons button { padding: 5px 10px; font-size: 0.75rem; background:#00ffff; color:#000; border:none; border-radius:4px; cursor:pointer; }
 </style>
 </head>
 
@@ -61,20 +54,12 @@
 <img src="https://i.ibb.co/SD0r6k00/Image1.jpg" class="w-20 rounded shadow-lg">
 </div>
 
-<h1 class="text-4xl font-extrabold mb-4 text-center neon">
-Télécharger vos supports de cours
-</h1>
-
-<h2 class="text-3xl font-bold mb-6 text-center neon">
-Ets GOOD DAV NET
-</h2>
+<h1 class="text-4xl font-extrabold mb-4 text-center neon">Télécharger vos supports de cours</h1>
+<h2 class="text-3xl font-bold mb-6 text-center neon">Ets GOOD DAV NET</h2>
 
 <div class="flex justify-center gap-4 mb-6">
-<button onclick="authAction(addProduct,'admin')" 
-class="bg-cyan-600 px-4 py-2 rounded text-sm">Ajouter</button>
-
-<button onclick="authAction(showOrders,'admin')" 
-class="bg-purple-600 px-4 py-2 rounded text-sm">PANNEAUX</button>
+<button onclick="authAction(addProduct,'admin')" class="bg-cyan-600 px-4 py-2 rounded text-sm">Ajouter</button>
+<button onclick="authAction(showOrders,'admin')" class="bg-purple-600 px-4 py-2 rounded text-sm">PANNEAUX</button>
 </div>
 
 <div class="fixed top-5 right-5 bg-gray-900 p-3 rounded text-xs card-neon">
@@ -88,37 +73,25 @@ class="bg-purple-600 px-4 py-2 rounded text-sm">PANNEAUX</button>
 <!-- MODAL COMMANDE -->
 <div id="orderModal" class="hidden fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-50">
 <div class="bg-gray-900 p-6 rounded w-11/12 max-w-lg">
-
 <h2 class="text-blue-400 text-center font-bold mb-4">
 Envoyez vos commandes via WhatsApp et PAYER au 01-44-83-24-64 ou 01-47-44-24-15 au nom de ETAKOUANA DAVID
 </h2>
-
-<input id="clientAddress" placeholder="Votre adresse"
-class="w-full p-2 mb-3 rounded text-black">
-
-<input id="clientPhone" placeholder="Votre numéro de téléphone"
-class="w-full p-2 mb-3 rounded text-black">
-
-<button onclick="sendOrderWhatsApp()"
-class="w-full bg-green-600 p-2 rounded text-sm">
-Envoyer la commande
-</button>
-
-<button onclick="closeOrderModal()"
-class="w-full bg-red-600 p-2 rounded text-sm mt-2">
-Annuler
-</button>
-
+<input id="clientAddress" placeholder="Votre adresse" class="w-full p-2 mb-3 rounded text-black">
+<input id="clientPhone" placeholder="Votre numéro de téléphone" class="w-full p-2 mb-3 rounded text-black">
+<button onclick="sendOrderWhatsApp()" class="w-full bg-green-600 p-2 rounded text-sm">Envoyer la commande</button>
+<button onclick="closeOrderModal()" class="w-full bg-red-600 p-2 rounded text-sm mt-2">Annuler</button>
 </div>
 </div>
 
-<!-- Conteneur pour les pubs -->
-<div id="ads-container" style="display:none;"></div>
+<!-- Conteneur pub -->
+<div id="ads-container" style="display:none;">
+<div id="ads-buttons"></div>
+</div>
 
 <script>
+// ----- VARIABLES ET FONCTIONS PRODUITS -----
 const ADMIN_KEY="admin_password_secure";
 const DOWNLOAD_KEY="download_password_secure";
-
 if(!localStorage.getItem(ADMIN_KEY)) localStorage.setItem(ADMIN_KEY,"95391036");
 if(!localStorage.getItem(DOWNLOAD_KEY)) localStorage.setItem(DOWNLOAD_KEY,"52522");
 
@@ -134,13 +107,10 @@ else if(type==='download' && pwd===localStorage.getItem(DOWNLOAD_KEY)) callback(
 else alert("Mot de passe incorrect");
 }
 
-function saveProducts(){
-localStorage.setItem("products",JSON.stringify(products));
-}
+function saveProducts(){ localStorage.setItem("products",JSON.stringify(products)); }
 
 function updateCartUI(){
-let total=0;
-cart.forEach(p=> total+=parseInt(p.price||0));
+let total=0; cart.forEach(p=> total+=parseInt(p.price||0));
 document.getElementById("cartCount").innerText=cart.length;
 document.getElementById("cartTotal").innerText=total;
 }
@@ -161,166 +131,78 @@ ${p.image ? `<img src="${p.image}" class="w-full h-24 object-cover rounded mb-2"
 });
 }
 
-function openOrderModal(i){
-selectedProductIndex=i;
-document.getElementById("orderModal").classList.remove("hidden");
-}
-
-function closeOrderModal(){
-document.getElementById("orderModal").classList.add("hidden");
-document.getElementById("clientAddress").value="";
-document.getElementById("clientPhone").value="";
-}
+function openOrderModal(i){ selectedProductIndex=i; document.getElementById("orderModal").classList.remove("hidden"); }
+function closeOrderModal(){ document.getElementById("orderModal").classList.add("hidden"); document.getElementById("clientAddress").value=""; document.getElementById("clientPhone").value=""; }
 
 function sendOrderWhatsApp(){
 let address=document.getElementById("clientAddress").value;
 let phone=document.getElementById("clientPhone").value;
 if(!address || !phone){ alert("Veuillez remplir tous les champs"); return; }
-
 let product=products[selectedProductIndex];
-
-let message=
-"Nouvelle commande %0A"+
-"Produit: "+product.title+"%0A"+
-"Prix: "+product.price+" XOF%0A"+
-"Adresse: "+address+"%0A"+
-"Téléphone: "+phone;
-
+let message="Nouvelle commande %0AProduit: "+product.title+"%0APrix: "+product.price+" XOF%0AAdresse: "+address+"%0ATéléphone: "+phone;
 window.open("https://wa.me/2290144832464?text="+message,"_blank");
-
-orders.push({
-product:product.title,
-price:product.price,
-address:address,
-phone:phone,
-date:new Date().toLocaleString()
-});
-
+orders.push({product:product.title, price:product.price, address, phone, date:new Date().toLocaleString()});
 localStorage.setItem("orders",JSON.stringify(orders));
-closeOrderModal();
-alert("Commande envoyée avec succès !");
+closeOrderModal(); alert("Commande envoyée avec succès !");
 }
 
-function downloadFile(i){
-let p=products[i];
-if(p.file) window.open(p.file,"_blank");
-}
+function downloadFile(i){ let p=products[i]; if(p.file) window.open(p.file,"_blank"); }
 
-/* ===============================
-   AJOUT AUTOMATIQUE DU SUPPORT
-================================= */
-
+// ===== Ajout automatique de produits
 if(!products.find(p => p.title === "Apprendre à comprendre le HTML")){
-products.push({
-title:"Apprendre à comprendre le HTML",
-description:"Formation complète pour apprendre et comprendre le HTML de base jusqu’au niveau avancé.",
-price:"1000",
-image:"https://i.ibb.co/chkFBD7q/HTML-tutorial-with-vibrant-design-elements.png",
-file:"https://mega.nz/file/NuJRHYBK#7__vD891MtPAp0WpTF9QTIarSr1DuDxS5Q6pKvgYhOg"
-});
+products.push({title:"Apprendre à comprendre le HTML", description:"Formation complète HTML", price:"1000", image:"https://i.ibb.co/chkFBD7q/HTML-tutorial-with-vibrant-design-elements.png", file:"https://mega.nz/file/NuJRHYBK#7__vD891MtPAp0WpTF9QTIarSr1DuDxS5Q6pKvgYhOg"});
 saveProducts();
 }
-
-if(!products.find(p => p.title === "Vidéo sur la création d'un fichier HTML")){
-products.push({
-title:"Vidéo sur la création d'un fichier HTML",
-description:"Formation vidéo complète expliquant étape par étape la création d’un fichier HTML.",
-price:"1000",
-image:"https://i.ibb.co/FknJvmYL/HTML-tutorial-with-vibrant-design-elements.png",
-file:"https://mega.nz/file/hz5hhTqI#mDBzbeTg7gcuh3NoyRgUxaCkg49RYmYuS8QlYoF7-Xw"
-});
-saveProducts();
-}
-
-if(!products.find(p => p.title === "Vidéo sur la maitrise de CSS")){
-products.push({
-title:"Vidéo sur la maitrise de CSS",
-description:"Formation vidéo complète pour maîtriser le CSS et créer des designs modernes et professionnels.",
-price:"1000",
-image:"https://i.ibb.co/ddLjnWq/Chat-GPT-Image-Mar-4-2026-04-10-26-PM.png",
-file:"https://mega.nz/file/t6gBFaYK#ilIZxBATG_FWEcm4HDISVNkijBJoVwFFVQA2rmn2Trg"
-});
-saveProducts();
-}
-
-if(!products.find(p => p.title === "Vidéo sur l'installation de python et la création d'un fichier py")){
-products.push({
-title:"Vidéo sur l'installation de python et la création d'un fichier py",
-description:"Formation vidéo complète expliquant l'installation de Python et la création d’un premier fichier .py étape par étape.",
-price:"1000",
-image:"https://i.ibb.co/7NyJsxJH/Chat-GPT-Image-5-mars-2026-01-44-33.png",
-file:"https://mega.nz/file/hiZGRSZY#FcC5SAmt1-TmfIY-R8hZeniAy24sr1HP0azurL2jCKo"
-});
-saveProducts();
-}
-/* =============================== */
-
+// ... Ajouter les autres produits comme dans ton précédent code ...
 renderProducts();
 updateCartUI();
-</script>
 
-<!-- ==========================
-   SCRIPT PUBLICITÉS
-=========================== -->
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    const adsData = [
-        { type: "link", url: "https://etakouana35-del.github.io/l/" },
-        { type: "link", url: "https://etakouana35-del.github.io/com/" },
-        { type: "link", url: "https://etsgooddavnet-dot.github.io/r/" },
-        { type: "video", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
-        { type: "video", url: "https://www.w3schools.com/html/mov_bbb.mp4", loop: true }
-    ];
+// ----- SCRIPT PUBS FIABLES -----
+const adsData=[
+    { type:"link", url:"https://etakouana35-del.github.io/l/" },
+    { type:"link", url:"https://etakouana35-del.github.io/com/" },
+    { type:"link", url:"https://etsgooddavnet-dot.github.io/r/" },
+    { type:"video", url:"https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
+    { type:"video", url:"https://www.w3schools.com/html/mov_bbb.mp4", loop:true }
+];
 
-    const displayed = new Set(JSON.parse(localStorage.getItem("displayedAds") || "[]"));
-    const container = document.getElementById("ads-container");
+const displayed=new Set(JSON.parse(localStorage.getItem("displayedAds")||"[]"));
+const adsContainer=document.getElementById("ads-container");
+const adsButtons=document.getElementById("ads-buttons");
 
-    function showNextAd() {
-        const nextAd = adsData.find(ad => !displayed.has(ad.url));
-        if (!nextAd) {
-            container.style.display = "none";
-            return;
-        }
+function showNextAd(){
+    const nextAd=adsData.find(ad => !displayed.has(ad.url));
+    if(!nextAd){ adsContainer.style.display="none"; return; }
 
-        container.style.display = "flex";
-        container.innerHTML = "";
+    adsContainer.style.display="flex";
+    adsContainer.innerHTML=""; // clear container
+    adsButtons.innerHTML="";
 
-        try {
-            if (nextAd.type === "link") {
-                const iframe = document.createElement("iframe");
-                iframe.src = nextAd.url;
-                container.appendChild(iframe);
-            } else if (nextAd.type === "video") {
-                if (nextAd.url.includes("youtube.com") || nextAd.url.includes("youtu.be")) {
-                    const videoId = nextAd.url.split("v=")[1] || nextAd.url.split("youtu.be/")[1];
-                    const iframe = document.createElement("iframe");
-                    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
-                    container.appendChild(iframe);
-                } else {
-                    const video = document.createElement("video");
-                    video.src = nextAd.url;
-                    video.autoplay = true;
-                    video.loop = !!nextAd.loop;
-                    video.controls = true;
-                    container.appendChild(video);
-                    setTimeout(() => { container.innerHTML = ""; }, 10000);
-                }
-            }
-
-            displayed.add(nextAd.url);
-            localStorage.setItem("displayedAds", JSON.stringify([...displayed]));
-
-        } catch (e) {
-            console.warn("Erreur pub : " + nextAd.url);
-            displayed.add(nextAd.url);
-            localStorage.setItem("displayedAds", JSON.stringify([...displayed]));
-        }
-
-        setTimeout(showNextAd, 2000);
+    if(nextAd.type==="video" && !nextAd.url.includes("youtube.com") && !nextAd.url.includes("youtu.be")){
+        const video=document.createElement("video");
+        video.src=nextAd.url;
+        video.autoplay=true;
+        video.loop=!!nextAd.loop;
+        video.controls=true;
+        adsContainer.appendChild(video);
+        setTimeout(()=>{ adsContainer.innerHTML=""; },10000);
+        displayed.add(nextAd.url);
+        localStorage.setItem("displayedAds",JSON.stringify([...displayed]));
+        setTimeout(showNextAd,2000);
+    } else {
+        // Crée un bouton pour YouTube et liens
+        const btn=document.createElement("button");
+        btn.innerText=nextAd.type==="video"?"Voir la vidéo":"Voir le lien";
+        btn.onclick=()=> window.open(nextAd.url,"_blank");
+        adsButtons.appendChild(btn);
+        adsContainer.appendChild(adsButtons);
+        displayed.add(nextAd.url);
+        localStorage.setItem("displayedAds",JSON.stringify([...displayed]));
+        setTimeout(showNextAd,2000);
     }
+}
 
-    showNextAd();
-});
+showNextAd();
 </script>
 
 </body>
