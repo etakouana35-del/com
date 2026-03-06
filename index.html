@@ -234,37 +234,65 @@ updateCartUI();
 </script>
 
 <!-- Script des publicités -->
-<script>
+ <script>
 document.addEventListener("DOMContentLoaded", () => {
     const adsData = [
-        { type: "video", url: "https://youtu.be/oYBjKP48aR4?list=TLGGOB86ImZDzGswNTAzMjAyNg" },
-        { type: "video", url: "https://youtu.be/example2" },
-        { type: "link", url: "https://etakouana35-del.github.io/com/" }
-        // ajoute toutes tes pubs ici
+        { type: "link", url: "https://etakouana35-del.github.io/l/" },
+        { type: "link", url: "https://etakouana35-del.github.io/com/" },
+        { type: "link", url: "https://etsgooddavnet-dot.github.io/r/" },
+        { type: "video", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
+        { type: "video", url: "https://www.w3schools.com/html/mov_bbb.mp4", loop: true }
     ];
 
-    let displayed = new Set();
+    // Récupère les pubs déjà affichées depuis le localStorage
+    const displayed = new Set(JSON.parse(localStorage.getItem("displayedAds") || "[]"));
     let index = 0;
 
     function showNextAd() {
+        // Cherche la prochaine pub non affichée
+        while (index < adsData.length && displayed.has(adsData[index].url)) {
+            index++;
+        }
+
         if (index >= adsData.length) return; // toutes les pubs affichées
 
         const ad = adsData[index];
 
-        // Ouvre la pub selon le type
-        if (ad.type === "video" || ad.type === "link") {
-            const win = window.open(ad.url, "_blank");
-            if(win) {
-                displayed.add(ad.url);
+        try {
+            let win;
+            if (ad.type === "link") {
+                win = window.open(ad.url, "_blank");
+            } else if (ad.type === "video") {
+                // Pour YouTube, ouverture automatique via URL
+                if (ad.url.includes("youtube.com") || ad.url.includes("youtu.be")) {
+                    win = window.open(ad.url + "?autoplay=1", "_blank");
+                } else {
+                    // Vidéo locale
+                    win = window.open("", "_blank");
+                    if (win) {
+                        win.document.write(`
+                            <video src="${ad.url}" autoplay ${ad.loop ? "loop" : ""} controls style="width:100%;height:100%;"></video>
+                        `);
+                        // Ferme automatiquement après 10 secondes si besoin
+                        setTimeout(() => win.close(), 10000);
+                    }
+                }
             }
+
+            if (win) {
+                displayed.add(ad.url);
+                // Sauvegarde dans localStorage pour éviter répétition
+                localStorage.setItem("displayedAds", JSON.stringify([...displayed]));
+            }
+        } catch (e) {
+            console.warn("Pop-up bloqué pour : " + ad.url);
         }
 
         index++;
-        // Passe à la pub suivante après 2 secondes
-        setTimeout(showNextAd, 2000);
+        setTimeout(showNextAd, 2000); // 2 secondes avant la suivante
     }
 
-    showNextAd(); // lance la rotation
+    showNextAd();
 });
 </script>
 </body>
