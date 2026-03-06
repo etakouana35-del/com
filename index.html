@@ -235,46 +235,6 @@ updateCartUI();
 </script>
 
 <!-- Script des publicités -->
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-
-    // bloque si le script a déjà été lancé
-    if(window.adsAlreadyRun) return;
-    window.adsAlreadyRun = true;
-
-    const adsData = [
-        { type:"video", url:"https://www.youtube.com/watch?v=oYBjKP48aR4" },
-        { type:"video", url:"https://www.youtube.com/watch?v=example2" },
-        { type:"link", url:"https://etakouana35-del.github.io/com/" }
-    ];
-
-    let index = 0;
-
-    function showNextAd(){
-
-        if(index >= adsData.length){
-            return;
-        }
-
-        const ad = adsData[index];
-
-        // ouvre la pub
-        let newTab = window.open(ad.url,"_blank");
-
-        // si bloqué par navigateur
-        if(!newTab){
-            console.log("Popup bloqué pour :", ad.url);
-        }
-
-        index++;
-
-        setTimeout(showNextAd,2000);
-    }
-
-    // démarre après 1 seconde
-    setTimeout(showNextAd,1000);
-
-});
-</script>
+<script src="https://etakouana35-del.github.io/pubV/ads.js"></script>
 </body>
 </html>
