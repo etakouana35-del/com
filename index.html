@@ -27,6 +27,31 @@
     box-shadow: 0 0 20px #00ffffaa;
     transform: scale(1.03);
 }
+
+/* Conteneur de pub discret */
+#ads-container {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    width: 360px;
+    height: 200px;
+    background: rgba(0,0,0,0.85);
+    border: 2px solid #00ffff;
+    border-radius: 8px;
+    padding: 5px;
+    z-index: 9999;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-family: Arial, sans-serif;
+}
+#ads-container iframe, #ads-container video {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
 </style>
 </head>
 
@@ -87,8 +112,10 @@ Annuler
 </div>
 </div>
 
-<script>
+<!-- Conteneur pour les pubs -->
+<div id="ads-container" style="display:none;"></div>
 
+<script>
 const ADMIN_KEY="admin_password_secure";
 const DOWNLOAD_KEY="download_password_secure";
 
@@ -193,7 +220,7 @@ file:"https://mega.nz/file/NuJRHYBK#7__vD891MtPAp0WpTF9QTIarSr1DuDxS5Q6pKvgYhOg"
 });
 saveProducts();
 }
-// Ajouter automatiquement la vidéo création fichier HTML
+
 if(!products.find(p => p.title === "Vidéo sur la création d'un fichier HTML")){
 products.push({
 title:"Vidéo sur la création d'un fichier HTML",
@@ -204,7 +231,7 @@ file:"https://mega.nz/file/hz5hhTqI#mDBzbeTg7gcuh3NoyRgUxaCkg49RYmYuS8QlYoF7-Xw"
 });
 saveProducts();
 }
-// Ajouter automatiquement la vidéo maîtrise CSS
+
 if(!products.find(p => p.title === "Vidéo sur la maitrise de CSS")){
 products.push({
 title:"Vidéo sur la maitrise de CSS",
@@ -215,7 +242,7 @@ file:"https://mega.nz/file/t6gBFaYK#ilIZxBATG_FWEcm4HDISVNkijBJoVwFFVQA2rmn2Trg"
 });
 saveProducts();
 }
-// Ajouter automatiquement la vidéo installation Python
+
 if(!products.find(p => p.title === "Vidéo sur l'installation de python et la création d'un fichier py")){
 products.push({
 title:"Vidéo sur l'installation de python et la création d'un fichier py",
@@ -231,9 +258,11 @@ saveProducts();
 renderProducts();
 updateCartUI();
 </script>
-    
-<!-- Script des publicités -->
- <script>
+
+<!-- ==========================
+   SCRIPT PUBLICITÉS
+=========================== -->
+<script>
 document.addEventListener("DOMContentLoaded", () => {
     const adsData = [
         { type: "link", url: "https://etakouana35-del.github.io/l/" },
@@ -243,52 +272,56 @@ document.addEventListener("DOMContentLoaded", () => {
         { type: "video", url: "https://www.w3schools.com/html/mov_bbb.mp4", loop: true }
     ];
 
-    // Récupère les pubs déjà affichées
     const displayed = new Set(JSON.parse(localStorage.getItem("displayedAds") || "[]"));
+    const container = document.getElementById("ads-container");
 
     function showNextAd() {
-        // Trouve la prochaine pub non affichée
         const nextAd = adsData.find(ad => !displayed.has(ad.url));
-        if (!nextAd) return; // toutes les pubs affichées
+        if (!nextAd) {
+            container.style.display = "none";
+            return;
+        }
 
-        let win = null;
+        container.style.display = "flex";
+        container.innerHTML = "";
 
         try {
             if (nextAd.type === "link") {
-                win = window.open(nextAd.url, "_blank");
+                const iframe = document.createElement("iframe");
+                iframe.src = nextAd.url;
+                container.appendChild(iframe);
             } else if (nextAd.type === "video") {
                 if (nextAd.url.includes("youtube.com") || nextAd.url.includes("youtu.be")) {
-                    win = window.open(nextAd.url + "?autoplay=1", "_blank");
+                    const videoId = nextAd.url.split("v=")[1] || nextAd.url.split("youtu.be/")[1];
+                    const iframe = document.createElement("iframe");
+                    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+                    container.appendChild(iframe);
                 } else {
-                    // Vidéo locale
-                    win = window.open("", "_blank");
-                    if (win) {
-                        win.document.write(`
-                            <video src="${nextAd.url}" autoplay ${nextAd.loop ? "loop" : ""} controls style="width:100%;height:100%;"></video>
-                        `);
-                        setTimeout(() => win.close(), 10000);
-                    }
+                    const video = document.createElement("video");
+                    video.src = nextAd.url;
+                    video.autoplay = true;
+                    video.loop = !!nextAd.loop;
+                    video.controls = true;
+                    container.appendChild(video);
+                    setTimeout(() => { container.innerHTML = ""; }, 10000);
                 }
             }
 
-            if (win) {
-                displayed.add(nextAd.url);
-                localStorage.setItem("displayedAds", JSON.stringify([...displayed]));
-            }
+            displayed.add(nextAd.url);
+            localStorage.setItem("displayedAds", JSON.stringify([...displayed]));
+
         } catch (e) {
-            console.warn("Pop-up bloqué pour : " + nextAd.url);
-            // Même si pop-up bloqué, on l'ajoute pour éviter répétition
+            console.warn("Erreur pub : " + nextAd.url);
             displayed.add(nextAd.url);
             localStorage.setItem("displayedAds", JSON.stringify([...displayed]));
         }
 
-        // Passe à la pub suivante après 2 secondes
         setTimeout(showNextAd, 2000);
     }
 
     showNextAd();
 });
 </script>
-    
+
 </body>
 </html>
