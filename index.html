@@ -1,374 +1,171 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ets GOOD DAV NET</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-<style>
-
-.neon{
-text-shadow:0 0 5px #00ffff,0 0 10px #00ffff,0 0 20px #00ffff;
-animation:glow 1.5s infinite alternate;
-}
-
-@keyframes glow{
-from{ text-shadow:0 0 5px #00ffff;}
-to{ text-shadow:0 0 25px #00ffff;}
-}
-
-.card-neon{
-box-shadow:0 0 8px #00ffff33;
-transition:0.3s;
-}
-
-.card-neon:hover{
-box-shadow:0 0 20px #00ffffaa;
-transform:scale(1.03);
-}
-
-/* PUB */
-
-#adsBox{
-position:fixed;
-bottom:20px;
-right:20px;
-width:360px;
-height:200px;
-background:black;
-border:2px solid #00ffff;
-border-radius:10px;
-display:none;
-z-index:9999;
-overflow:hidden;
-}
-
-#adsContent iframe,
-#adsContent video{
-width:100%;
-height:100%;
-}
-
-#closeAd{
-position:absolute;
-top:3px;
-right:6px;
-background:red;
-color:white;
-border:none;
-padding:2px 6px;
-cursor:pointer;
-font-size:12px;
-}
-
-</style>
-</head>
-
-<body class="bg-black text-white p-6">
-
-<h1 class="text-4xl font-bold text-center neon">
-Télécharger vos supports de cours
-</h1>
-
-<h2 class="text-2xl text-center mb-6 neon">
-Ets GOOD DAV NET
-</h2>
-
-<div class="flex justify-center gap-4 mb-6">
-
-<button onclick="authAction(addProduct,'admin')" class="bg-cyan-600 px-4 py-2 rounded">
-Ajouter
-</button>
-
-<button onclick="authAction(showOrders,'admin')" class="bg-purple-600 px-4 py-2 rounded">
-PANNEAUX
-</button>
-
-</div>
-
-<div id="productGrid" class="grid md:grid-cols-5 gap-3"></div>
-
-<!-- COMMANDE -->
-
-<div id="orderModal" class="hidden fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center">
-
-<div class="bg-gray-900 p-6 rounded w-96">
-
-<h2 class="text-blue-400 text-center mb-3">
-
-Envoyez vos commandes via WhatsApp  
-et payer au  
-01-44-83-24-64
-
-</h2>
-
-<input id="clientAddress" placeholder="Adresse" class="w-full p-2 mb-2 text-black">
-
-<input id="clientPhone" placeholder="Téléphone" class="w-full p-2 mb-3 text-black">
-
-<button onclick="sendOrderWhatsApp()" class="bg-green-600 w-full p-2 rounded">
-Envoyer
-</button>
-
-<button onclick="closeOrderModal()" class="bg-red-600 w-full p-2 rounded mt-2">
-Annuler
-</button>
-
-</div>
-</div>
-
-
-<!-- PUB -->
-
-<div id="adsBox">
-
-<button id="closeAd">X</button>
-
-<div id="adsContent"></div>
-
-</div>
-
-
-<script>
-
-/* MOTS DE PASSE */
-
-const ADMIN_KEY="admin_pass";
-const DOWNLOAD_KEY="download_pass";
-
-if(!localStorage.getItem(ADMIN_KEY)) localStorage.setItem(ADMIN_KEY,"95391036");
-if(!localStorage.getItem(DOWNLOAD_KEY)) localStorage.setItem(DOWNLOAD_KEY,"52522");
-
-
-/* DONNÉES */
-
-let products=JSON.parse(localStorage.getItem("products"))||[];
-let orders=JSON.parse(localStorage.getItem("orders"))||[];
-
-let selectedProductIndex=null;
-
-
-/* AUTH */
-
-function authAction(callback,type){
-
-let pwd=prompt("Mot de passe");
-
-if(type==="admin" && pwd===localStorage.getItem(ADMIN_KEY)){
-callback();
-}
-else if(type==="download" && pwd===localStorage.getItem(DOWNLOAD_KEY)){
-callback();
-}
-else{
-alert("Mot de passe incorrect");
-}
-
-}
-
-
-/* AJOUT PRODUIT */
-
-function addProduct(){
-
-let title=prompt("Nom du produit");
-let price=prompt("Prix");
-let file=prompt("Lien fichier");
-
-products.push({title,price,file});
-
-localStorage.setItem("products",JSON.stringify(products));
-
-renderProducts();
-
-}
-
-
-/* PANNEAUX */
-
-function showOrders(){
-
-let txt="COMMANDES :\n\n";
-
-orders.forEach(o=>{
-txt+=o.product+" | "+o.phone+"\n";
+document.addEventListener("DOMContentLoaded", () => {
+
+let adsData = [];
+let currentIndex = 0;
+const rotationTime = 15000;
+
+const container = document.createElement("div");
+container.id = "ads-container";
+
+Object.assign(container.style,{
+position:"fixed",
+bottom:"10px",
+right:"10px",
+width:"320px",
+height:"220px",
+background:"rgba(0,0,0,0.9)",
+borderRadius:"10px",
+overflow:"hidden",
+zIndex:"9999",
+boxShadow:"0 0 15px rgba(0,0,0,0.7)",
+transition:"opacity 0.5s"
 });
 
-alert(txt);
+document.body.appendChild(container);
+
+const closeBtn = document.createElement("div");
+closeBtn.innerHTML="✕";
+
+Object.assign(closeBtn.style,{
+position:"absolute",
+top:"5px",
+right:"8px",
+color:"#fff",
+cursor:"pointer",
+fontSize:"18px",
+zIndex:"10"
+});
+
+closeBtn.onclick=()=>container.remove();
+
+container.appendChild(closeBtn);
+
+const adArea = document.createElement("div");
+adArea.style.width="100%";
+adArea.style.height="100%";
+container.appendChild(adArea);
+
+
+function getYoutubeId(url){
+let regExp=/^(?:.*v=|youtu\.be\/)([^&]+)/;
+let match=url.match(regExp);
+return match?match[1]:null;
+}
+
+
+function showAd(){
+
+if(adsData.length===0) return;
+
+const ad = adsData[currentIndex];
+
+adArea.innerHTML="";
+
+if(ad.type==="video"){
+
+if(ad.url.includes("youtube")||ad.url.includes("youtu.be")){
+
+const id=getYoutubeId(ad.url);
+
+const iframe=document.createElement("iframe");
+
+iframe.src=`https://www.youtube.com/embed/${id}?autoplay=1&mute=1`;
+
+iframe.allow="autoplay";
+
+Object.assign(iframe.style,{
+width:"100%",
+height:"100%",
+border:"none"
+});
+
+adArea.appendChild(iframe);
+
+}else{
+
+const video=document.createElement("video");
+
+video.src=ad.url;
+video.autoplay=true;
+video.muted=true;
+video.loop=ad.loop||false;
+video.controls=true;
+
+Object.assign(video.style,{
+width:"100%",
+height:"100%"
+});
+
+adArea.appendChild(video);
+
+}
+
+}
+
+if(ad.type==="link"){
+
+const wrapper=document.createElement("div");
+
+Object.assign(wrapper.style,{
+position:"relative",
+width:"100%",
+height:"100%"
+});
+
+const iframe=document.createElement("iframe");
+
+iframe.src=ad.url;
+
+Object.assign(iframe.style,{
+width:"100%",
+height:"100%",
+border:"none"
+});
+
+const overlay=document.createElement("div");
+
+Object.assign(overlay.style,{
+position:"absolute",
+top:"0",
+left:"0",
+width:"100%",
+height:"100%",
+cursor:"pointer"
+});
+
+overlay.onclick=()=>window.open(ad.url,"_blank");
+
+wrapper.appendChild(iframe);
+wrapper.appendChild(overlay);
+
+adArea.appendChild(wrapper);
+
+}
+
+currentIndex++;
+
+if(currentIndex>=adsData.length){
+currentIndex=0;
+}
+
+setTimeout(showAd,rotationTime);
 
 }
 
 
-/* PRODUITS */
+fetch("https://etakouana35-del.github.io/pubV/pub.json")
+.then(res=>res.json())
+.then(data=>{
 
-function renderProducts(){
+adsData=data;
 
-let grid=document.getElementById("productGrid");
+showAd();
 
-grid.innerHTML="";
+})
+.catch(err=>{
 
-products.forEach((p,i)=>{
-
-grid.innerHTML+=`
-
-<div class="bg-gray-800 p-2 rounded card-neon">
-
-<h3>${p.title}</h3>
-
-<p>${p.price} XOF</p>
-
-<button onclick="openOrderModal(${i})" class="bg-green-600 w-full mt-2">
-Commander
-</button>
-
-<button onclick="authAction(()=>downloadFile(${i}),'download')" class="bg-indigo-600 w-full mt-2">
-Télécharger
-</button>
-
-</div>
-
-`;
+console.log("Erreur pub",err);
 
 });
 
-}
-
-
-function openOrderModal(i){
-
-selectedProductIndex=i;
-
-document.getElementById("orderModal").classList.remove("hidden");
-
-}
-
-function closeOrderModal(){
-
-document.getElementById("orderModal").classList.add("hidden");
-
-}
-
-
-/* WHATSAPP */
-
-function sendOrderWhatsApp(){
-
-let address=document.getElementById("clientAddress").value;
-let phone=document.getElementById("clientPhone").value;
-
-let product=products[selectedProductIndex];
-
-let msg="Commande: "+product.title+
-"%0APrix:"+product.price+
-"%0AAdresse:"+address+
-"%0ATel:"+phone;
-
-window.open("https://wa.me/2290144832464?text="+msg);
-
-orders.push({product:product.title,phone});
-
-localStorage.setItem("orders",JSON.stringify(orders));
-
-closeOrderModal();
-
-}
-
-
-/* DOWNLOAD */
-
-function downloadFile(i){
-
-window.open(products[i].file);
-
-}
-
-
-/* PUBS */
-
-const ads=[
-
-{type:"link",url:"https://etakouana35-del.github.io/l/"},
-
-{type:"link",url:"https://etakouana35-del.github.io/com/"},
-
-{type:"video",url:"https://www.youtube.com/embed/dQw4w9WgXcQ"},
-
-{type:"video",url:"https://www.w3schools.com/html/mov_bbb.mp4"}
-
-];
-
-
-let shownAds=JSON.parse(localStorage.getItem("shownAds")||"[]");
-
-let adIndex=0;
-
-const adsBox=document.getElementById("adsBox");
-const adsContent=document.getElementById("adsContent");
-
-
-function showAds(){
-
-if(adIndex>=ads.length) return;
-
-let ad=ads[adIndex];
-
-if(shownAds.includes(ad.url)){
-
-adIndex++;
-showAds();
-return;
-
-}
-
-adsBox.style.display="block";
-
-adsContent.innerHTML="";
-
-if(ad.type==="video" && ad.url.includes("youtube")){
-
-adsContent.innerHTML=`<iframe src="${ad.url}?autoplay=1"></iframe>`;
-
-}
-else if(ad.type==="video"){
-
-adsContent.innerHTML=`<video src="${ad.url}" autoplay controls></video>`;
-
-}
-else{
-
-adsContent.innerHTML=`<iframe src="${ad.url}"></iframe>`;
-
-}
-
-shownAds.push(ad.url);
-
-localStorage.setItem("shownAds",JSON.stringify(shownAds));
-
-adIndex++;
-
-setTimeout(showAds,2000);
-
-}
-
-
-/* fermer pub */
-
-document.getElementById("closeAd").onclick=function(){
-
-adsBox.style.display="none";
-
-};
-
-
-/* START */
-
-renderProducts();
-
-setTimeout(showAds,2000);
-
-</script>
-
-</body>
-</html>
+});
