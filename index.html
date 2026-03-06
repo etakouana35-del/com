@@ -238,10 +238,14 @@ updateCartUI();
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
+if(window.adsStarted) return;
+window.adsStarted = true;
+
 const adsData = [
     { type:"video", url:"https://etsgooddavnet-dot.github.io/com/" },
     { type:"video", url:"https://etakouana35-del.github.io/l/" },
-    { type:"link", url:"https://etsgooddavnet-dot.github.io/r/" }  
+    { type:"link", url:"https://etsgooddavnet-dot.github.io/r/" },
+    { type:"link", url:"https://youtu.be/oYBjKP48aR4?list=TLGGOB86ImZDzGswNjAzMjAyNg" }
 ];
 
 let index = 0;
@@ -255,14 +259,11 @@ function showNextAd(){
     const ad = adsData[index];
 
     // vérifier si la pub a déjà été ouverte
-    let opened = localStorage.getItem(ad.url);
-
-    if(!opened){
+    if(!localStorage.getItem(ad.url)){
 
         let win = window.open(ad.url,"_blank");
 
         if(win){
-            // enregistrer la pub comme ouverte
             localStorage.setItem(ad.url,"opened");
         }
 
@@ -273,11 +274,8 @@ function showNextAd(){
     setTimeout(showNextAd,2000);
 }
 
-// lancer une seule fois
-if(!localStorage.getItem("adsStarted")){
-    localStorage.setItem("adsStarted","yes");
-    setTimeout(showNextAd,1500);
-}
+// démarrage
+setTimeout(showNextAd,1500);
 
 });
 </script>
