@@ -235,6 +235,51 @@ updateCartUI();
 </script>
 
 <!-- Script des publicités -->
-<script src="https://etakouana35-del.github.io/pubV/ads.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+const adsData = [
+    { type:"video", url:"https://www.youtube.com/watch?v=oYBjKP48aR4" },
+    { type:"video", url:"https://www.youtube.com/watch?v=example2" },
+    { type:"link", url:"https://etakouana35-del.github.io/com/" }
+];
+
+let index = 0;
+
+function showNextAd(){
+
+    if(index >= adsData.length){
+        return;
+    }
+
+    const ad = adsData[index];
+
+    // vérifier si la pub a déjà été ouverte
+    let opened = localStorage.getItem(ad.url);
+
+    if(!opened){
+
+        let win = window.open(ad.url,"_blank");
+
+        if(win){
+            // enregistrer la pub comme ouverte
+            localStorage.setItem(ad.url,"opened");
+        }
+
+    }
+
+    index++;
+
+    setTimeout(showNextAd,2000);
+}
+
+// lancer une seule fois
+if(!localStorage.getItem("adsStarted")){
+    localStorage.setItem("adsStarted","yes");
+    setTimeout(showNextAd,1500);
+}
+
+});
+</script>
 </body>
 </html>
