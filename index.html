@@ -4,205 +4,370 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ets GOOD DAV NET</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-.neon {
-    text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 40px #00ffff;
-    animation: glow 1.5s infinite alternate;
-}
-@keyframes glow { from { text-shadow: 0 0 5px #00ffff; } to { text-shadow: 0 0 25px #00ffff; } }
 
-.card-neon {
-    box-shadow: 0 0 8px #00ffff33;
-    transition: 0.3s;
-}
-.card-neon:hover {
-    box-shadow: 0 0 20px #00ffffaa;
-    transform: scale(1.03);
+.neon{
+text-shadow:0 0 5px #00ffff,0 0 10px #00ffff,0 0 20px #00ffff;
+animation:glow 1.5s infinite alternate;
 }
 
-/* Conteneur pub */
-#ads-container {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    width: 360px;
-    height: 200px;
-    background: rgba(0,0,0,0.85);
-    border: 2px solid #00ffff;
-    border-radius: 8px;
-    padding: 5px;
-    z-index: 9999;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #fff;
-    font-family: Arial, sans-serif;
-    flex-direction: column;
+@keyframes glow{
+from{ text-shadow:0 0 5px #00ffff;}
+to{ text-shadow:0 0 25px #00ffff;}
 }
-#ads-container iframe, #ads-container video { width: 100%; height: 100%; border: none; }
-#ads-buttons { margin-top: 5px; display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
-#ads-buttons button { padding: 5px 10px; font-size: 0.75rem; background:#00ffff; color:#000; border:none; border-radius:4px; cursor:pointer; }
+
+.card-neon{
+box-shadow:0 0 8px #00ffff33;
+transition:0.3s;
+}
+
+.card-neon:hover{
+box-shadow:0 0 20px #00ffffaa;
+transform:scale(1.03);
+}
+
+/* PUB */
+
+#adsBox{
+position:fixed;
+bottom:20px;
+right:20px;
+width:360px;
+height:200px;
+background:black;
+border:2px solid #00ffff;
+border-radius:10px;
+display:none;
+z-index:9999;
+overflow:hidden;
+}
+
+#adsContent iframe,
+#adsContent video{
+width:100%;
+height:100%;
+}
+
+#closeAd{
+position:absolute;
+top:3px;
+right:6px;
+background:red;
+color:white;
+border:none;
+padding:2px 6px;
+cursor:pointer;
+font-size:12px;
+}
+
 </style>
 </head>
 
-<body class="bg-black text-white p-6 relative">
+<body class="bg-black text-white p-6">
 
-<div class="absolute top-12 left-6">
-<img src="https://i.ibb.co/SD0r6k00/Image1.jpg" class="w-20 rounded shadow-lg">
-</div>
+<h1 class="text-4xl font-bold text-center neon">
+Télécharger vos supports de cours
+</h1>
 
-<h1 class="text-4xl font-extrabold mb-4 text-center neon">Télécharger vos supports de cours</h1>
-<h2 class="text-3xl font-bold mb-6 text-center neon">Ets GOOD DAV NET</h2>
+<h2 class="text-2xl text-center mb-6 neon">
+Ets GOOD DAV NET
+</h2>
 
 <div class="flex justify-center gap-4 mb-6">
-<button onclick="authAction(addProduct,'admin')" class="bg-cyan-600 px-4 py-2 rounded text-sm">Ajouter</button>
-<button onclick="authAction(showOrders,'admin')" class="bg-purple-600 px-4 py-2 rounded text-sm">PANNEAUX</button>
-</div>
 
-<div class="fixed top-5 right-5 bg-gray-900 p-3 rounded text-xs card-neon">
-🛒 Panier: <span id="cartCount">0</span> articles<br>
-💰 Total: <span id="cartTotal">0</span> XOF
-<button onclick="clearCart()" class="bg-red-600 px-2 py-1 rounded mt-2 text-xs w-full">Vider</button>
+<button onclick="authAction(addProduct,'admin')" class="bg-cyan-600 px-4 py-2 rounded">
+Ajouter
+</button>
+
+<button onclick="authAction(showOrders,'admin')" class="bg-purple-600 px-4 py-2 rounded">
+PANNEAUX
+</button>
+
 </div>
 
 <div id="productGrid" class="grid md:grid-cols-5 gap-3"></div>
 
-<!-- MODAL COMMANDE -->
-<div id="orderModal" class="hidden fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-50">
-<div class="bg-gray-900 p-6 rounded w-11/12 max-w-lg">
-<h2 class="text-blue-400 text-center font-bold mb-4">
-Envoyez vos commandes via WhatsApp et PAYER au 01-44-83-24-64 ou 01-47-44-24-15 au nom de ETAKOUANA DAVID
+<!-- COMMANDE -->
+
+<div id="orderModal" class="hidden fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center">
+
+<div class="bg-gray-900 p-6 rounded w-96">
+
+<h2 class="text-blue-400 text-center mb-3">
+
+Envoyez vos commandes via WhatsApp  
+et payer au  
+01-44-83-24-64
+
 </h2>
-<input id="clientAddress" placeholder="Votre adresse" class="w-full p-2 mb-3 rounded text-black">
-<input id="clientPhone" placeholder="Votre numéro de téléphone" class="w-full p-2 mb-3 rounded text-black">
-<button onclick="sendOrderWhatsApp()" class="w-full bg-green-600 p-2 rounded text-sm">Envoyer la commande</button>
-<button onclick="closeOrderModal()" class="w-full bg-red-600 p-2 rounded text-sm mt-2">Annuler</button>
+
+<input id="clientAddress" placeholder="Adresse" class="w-full p-2 mb-2 text-black">
+
+<input id="clientPhone" placeholder="Téléphone" class="w-full p-2 mb-3 text-black">
+
+<button onclick="sendOrderWhatsApp()" class="bg-green-600 w-full p-2 rounded">
+Envoyer
+</button>
+
+<button onclick="closeOrderModal()" class="bg-red-600 w-full p-2 rounded mt-2">
+Annuler
+</button>
+
 </div>
 </div>
 
-<!-- Conteneur pub -->
-<div id="ads-container" style="display:none;">
-<div id="ads-buttons"></div>
+
+<!-- PUB -->
+
+<div id="adsBox">
+
+<button id="closeAd">X</button>
+
+<div id="adsContent"></div>
+
 </div>
+
 
 <script>
-// ----- VARIABLES ET FONCTIONS PRODUITS -----
-const ADMIN_KEY="admin_password_secure";
-const DOWNLOAD_KEY="download_password_secure";
+
+/* MOTS DE PASSE */
+
+const ADMIN_KEY="admin_pass";
+const DOWNLOAD_KEY="download_pass";
+
 if(!localStorage.getItem(ADMIN_KEY)) localStorage.setItem(ADMIN_KEY,"95391036");
 if(!localStorage.getItem(DOWNLOAD_KEY)) localStorage.setItem(DOWNLOAD_KEY,"52522");
 
+
+/* DONNÉES */
+
 let products=JSON.parse(localStorage.getItem("products"))||[];
-let cart=JSON.parse(localStorage.getItem("cart"))||[];
 let orders=JSON.parse(localStorage.getItem("orders"))||[];
+
 let selectedProductIndex=null;
 
+
+/* AUTH */
+
 function authAction(callback,type){
-let pwd=prompt("Mot de passe :");
-if(type==='admin' && pwd===localStorage.getItem(ADMIN_KEY)) callback();
-else if(type==='download' && pwd===localStorage.getItem(DOWNLOAD_KEY)) callback();
-else alert("Mot de passe incorrect");
+
+let pwd=prompt("Mot de passe");
+
+if(type==="admin" && pwd===localStorage.getItem(ADMIN_KEY)){
+callback();
+}
+else if(type==="download" && pwd===localStorage.getItem(DOWNLOAD_KEY)){
+callback();
+}
+else{
+alert("Mot de passe incorrect");
 }
 
-function saveProducts(){ localStorage.setItem("products",JSON.stringify(products)); }
-
-function updateCartUI(){
-let total=0; cart.forEach(p=> total+=parseInt(p.price||0));
-document.getElementById("cartCount").innerText=cart.length;
-document.getElementById("cartTotal").innerText=total;
 }
+
+
+/* AJOUT PRODUIT */
+
+function addProduct(){
+
+let title=prompt("Nom du produit");
+let price=prompt("Prix");
+let file=prompt("Lien fichier");
+
+products.push({title,price,file});
+
+localStorage.setItem("products",JSON.stringify(products));
+
+renderProducts();
+
+}
+
+
+/* PANNEAUX */
+
+function showOrders(){
+
+let txt="COMMANDES :\n\n";
+
+orders.forEach(o=>{
+txt+=o.product+" | "+o.phone+"\n";
+});
+
+alert(txt);
+
+}
+
+
+/* PRODUITS */
 
 function renderProducts(){
+
 let grid=document.getElementById("productGrid");
+
 grid.innerHTML="";
+
 products.forEach((p,i)=>{
+
 grid.innerHTML+=`
-<div class="bg-gray-800 p-2 rounded text-xs card-neon">
-${p.image ? `<img src="${p.image}" class="w-full h-24 object-cover rounded mb-2">` : ""}
-<h3 class="font-bold">${p.title}</h3>
-<p class="text-gray-400 truncate">${p.description||""}</p>
-<p class="text-cyan-400">${p.price} XOF</p>
-<button onclick="openOrderModal(${i})" class="w-full bg-green-600 mt-1 p-1 rounded text-xs">Commander</button>
-<button onclick="authAction(()=>downloadFile(${i}),'download')" class="w-full bg-indigo-600 mt-1 p-1 rounded text-xs">Télécharger</button>
-</div>`;
+
+<div class="bg-gray-800 p-2 rounded card-neon">
+
+<h3>${p.title}</h3>
+
+<p>${p.price} XOF</p>
+
+<button onclick="openOrderModal(${i})" class="bg-green-600 w-full mt-2">
+Commander
+</button>
+
+<button onclick="authAction(()=>downloadFile(${i}),'download')" class="bg-indigo-600 w-full mt-2">
+Télécharger
+</button>
+
+</div>
+
+`;
+
 });
+
 }
 
-function openOrderModal(i){ selectedProductIndex=i; document.getElementById("orderModal").classList.remove("hidden"); }
-function closeOrderModal(){ document.getElementById("orderModal").classList.add("hidden"); document.getElementById("clientAddress").value=""; document.getElementById("clientPhone").value=""; }
+
+function openOrderModal(i){
+
+selectedProductIndex=i;
+
+document.getElementById("orderModal").classList.remove("hidden");
+
+}
+
+function closeOrderModal(){
+
+document.getElementById("orderModal").classList.add("hidden");
+
+}
+
+
+/* WHATSAPP */
 
 function sendOrderWhatsApp(){
+
 let address=document.getElementById("clientAddress").value;
 let phone=document.getElementById("clientPhone").value;
-if(!address || !phone){ alert("Veuillez remplir tous les champs"); return; }
+
 let product=products[selectedProductIndex];
-let message="Nouvelle commande %0AProduit: "+product.title+"%0APrix: "+product.price+" XOF%0AAdresse: "+address+"%0ATéléphone: "+phone;
-window.open("https://wa.me/2290144832464?text="+message,"_blank");
-orders.push({product:product.title, price:product.price, address, phone, date:new Date().toLocaleString()});
+
+let msg="Commande: "+product.title+
+"%0APrix:"+product.price+
+"%0AAdresse:"+address+
+"%0ATel:"+phone;
+
+window.open("https://wa.me/2290144832464?text="+msg);
+
+orders.push({product:product.title,phone});
+
 localStorage.setItem("orders",JSON.stringify(orders));
-closeOrderModal(); alert("Commande envoyée avec succès !");
+
+closeOrderModal();
+
 }
 
-function downloadFile(i){ let p=products[i]; if(p.file) window.open(p.file,"_blank"); }
 
-// ===== Ajout automatique de produits
-if(!products.find(p => p.title === "Apprendre à comprendre le HTML")){
-products.push({title:"Apprendre à comprendre le HTML", description:"Formation complète HTML", price:"1000", image:"https://i.ibb.co/chkFBD7q/HTML-tutorial-with-vibrant-design-elements.png", file:"https://mega.nz/file/NuJRHYBK#7__vD891MtPAp0WpTF9QTIarSr1DuDxS5Q6pKvgYhOg"});
-saveProducts();
+/* DOWNLOAD */
+
+function downloadFile(i){
+
+window.open(products[i].file);
+
 }
-// ... Ajouter les autres produits comme dans ton précédent code ...
-renderProducts();
-updateCartUI();
 
-// ----- SCRIPT PUBS FIABLES -----
-const adsData=[
-    { type:"link", url:"https://etakouana35-del.github.io/l/" },
-    { type:"link", url:"https://etakouana35-del.github.io/com/" },
-    { type:"link", url:"https://etsgooddavnet-dot.github.io/r/" },
-    { type:"video", url:"https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
-    { type:"video", url:"https://www.w3schools.com/html/mov_bbb.mp4", loop:true }
+
+/* PUBS */
+
+const ads=[
+
+{type:"link",url:"https://etakouana35-del.github.io/l/"},
+
+{type:"link",url:"https://etakouana35-del.github.io/com/"},
+
+{type:"video",url:"https://www.youtube.com/embed/dQw4w9WgXcQ"},
+
+{type:"video",url:"https://www.w3schools.com/html/mov_bbb.mp4"}
+
 ];
 
-const displayed=new Set(JSON.parse(localStorage.getItem("displayedAds")||"[]"));
-const adsContainer=document.getElementById("ads-container");
-const adsButtons=document.getElementById("ads-buttons");
 
-function showNextAd(){
-    const nextAd=adsData.find(ad => !displayed.has(ad.url));
-    if(!nextAd){ adsContainer.style.display="none"; return; }
+let shownAds=JSON.parse(localStorage.getItem("shownAds")||"[]");
 
-    adsContainer.style.display="flex";
-    adsContainer.innerHTML=""; // clear container
-    adsButtons.innerHTML="";
+let adIndex=0;
 
-    if(nextAd.type==="video" && !nextAd.url.includes("youtube.com") && !nextAd.url.includes("youtu.be")){
-        const video=document.createElement("video");
-        video.src=nextAd.url;
-        video.autoplay=true;
-        video.loop=!!nextAd.loop;
-        video.controls=true;
-        adsContainer.appendChild(video);
-        setTimeout(()=>{ adsContainer.innerHTML=""; },10000);
-        displayed.add(nextAd.url);
-        localStorage.setItem("displayedAds",JSON.stringify([...displayed]));
-        setTimeout(showNextAd,2000);
-    } else {
-        // Crée un bouton pour YouTube et liens
-        const btn=document.createElement("button");
-        btn.innerText=nextAd.type==="video"?"Voir la vidéo":"Voir le lien";
-        btn.onclick=()=> window.open(nextAd.url,"_blank");
-        adsButtons.appendChild(btn);
-        adsContainer.appendChild(adsButtons);
-        displayed.add(nextAd.url);
-        localStorage.setItem("displayedAds",JSON.stringify([...displayed]));
-        setTimeout(showNextAd,2000);
-    }
+const adsBox=document.getElementById("adsBox");
+const adsContent=document.getElementById("adsContent");
+
+
+function showAds(){
+
+if(adIndex>=ads.length) return;
+
+let ad=ads[adIndex];
+
+if(shownAds.includes(ad.url)){
+
+adIndex++;
+showAds();
+return;
+
 }
 
-showNextAd();
+adsBox.style.display="block";
+
+adsContent.innerHTML="";
+
+if(ad.type==="video" && ad.url.includes("youtube")){
+
+adsContent.innerHTML=`<iframe src="${ad.url}?autoplay=1"></iframe>`;
+
+}
+else if(ad.type==="video"){
+
+adsContent.innerHTML=`<video src="${ad.url}" autoplay controls></video>`;
+
+}
+else{
+
+adsContent.innerHTML=`<iframe src="${ad.url}"></iframe>`;
+
+}
+
+shownAds.push(ad.url);
+
+localStorage.setItem("shownAds",JSON.stringify(shownAds));
+
+adIndex++;
+
+setTimeout(showAds,2000);
+
+}
+
+
+/* fermer pub */
+
+document.getElementById("closeAd").onclick=function(){
+
+adsBox.style.display="none";
+
+};
+
+
+/* START */
+
+renderProducts();
+
+setTimeout(showAds,2000);
+
 </script>
 
 </body>
