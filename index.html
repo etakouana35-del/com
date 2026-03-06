@@ -1,171 +1,272 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ets GOOD DAV NET</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+.neon {
+    text-shadow:
+        0 0 5px #00ffff,
+        0 0 10px #00ffff,
+        0 0 20px #00ffff,
+        0 0 40px #00ffff;
+    animation: glow 1.5s infinite alternate;
+}
+@keyframes glow {
+    from { text-shadow: 0 0 5px #00ffff; }
+    to { text-shadow: 0 0 25px #00ffff; }
+}
+.card-neon {
+    box-shadow: 0 0 8px #00ffff33;
+    transition: 0.3s;
+}
+.card-neon:hover {
+    box-shadow: 0 0 20px #00ffffaa;
+    transform: scale(1.03);
+}
+</style>
+</head>
+
+<body class="bg-black text-white p-6 relative">
+
+<div class="absolute top-12 left-6">
+<img src="https://i.ibb.co/SD0r6k00/Image1.jpg" class="w-20 rounded shadow-lg">
+</div>
+
+<h1 class="text-4xl font-extrabold mb-4 text-center neon">
+Télécharger vos supports de cours
+</h1>
+
+<h2 class="text-3xl font-bold mb-6 text-center neon">
+Ets GOOD DAV NET
+</h2>
+
+<div class="flex justify-center gap-4 mb-6">
+<button onclick="authAction(addProduct,'admin')" 
+class="bg-cyan-600 px-4 py-2 rounded text-sm">Ajouter</button>
+
+<button onclick="authAction(showOrders,'admin')" 
+class="bg-purple-600 px-4 py-2 rounded text-sm">PANNEAUX</button>
+</div>
+
+<div class="fixed top-5 right-5 bg-gray-900 p-3 rounded text-xs card-neon">
+🛒 Panier: <span id="cartCount">0</span> articles<br>
+💰 Total: <span id="cartTotal">0</span> XOF
+<button onclick="clearCart()" class="bg-red-600 px-2 py-1 rounded mt-2 text-xs w-full">Vider</button>
+</div>
+
+<div id="productGrid" class="grid md:grid-cols-5 gap-3"></div>
+
+<!-- MODAL COMMANDE -->
+<div id="orderModal" class="hidden fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-50">
+<div class="bg-gray-900 p-6 rounded w-11/12 max-w-lg">
+
+<h2 class="text-blue-400 text-center font-bold mb-4">
+Envoyez vos commandes via WhatsApp et PAYER au 01-44-83-24-64 ou 01-47-44-24-15 au nom de ETAKOUANA DAVID
+</h2>
+
+<input id="clientAddress" placeholder="Votre adresse"
+class="w-full p-2 mb-3 rounded text-black">
+
+<input id="clientPhone" placeholder="Votre numéro de téléphone"
+class="w-full p-2 mb-3 rounded text-black">
+
+<button onclick="sendOrderWhatsApp()"
+class="w-full bg-green-600 p-2 rounded text-sm">
+Envoyer la commande
+</button>
+
+<button onclick="closeOrderModal()"
+class="w-full bg-red-600 p-2 rounded text-sm mt-2">
+Annuler
+</button>
+
+</div>
+</div>
+
+<script>
+
+const ADMIN_KEY="admin_password_secure";
+const DOWNLOAD_KEY="download_password_secure";
+
+if(!localStorage.getItem(ADMIN_KEY)) localStorage.setItem(ADMIN_KEY,"95391036");
+if(!localStorage.getItem(DOWNLOAD_KEY)) localStorage.setItem(DOWNLOAD_KEY,"52522");
+
+let products=JSON.parse(localStorage.getItem("products"))||[];
+let cart=JSON.parse(localStorage.getItem("cart"))||[];
+let orders=JSON.parse(localStorage.getItem("orders"))||[];
+let selectedProductIndex=null;
+
+function authAction(callback,type){
+let pwd=prompt("Mot de passe :");
+if(type==='admin' && pwd===localStorage.getItem(ADMIN_KEY)) callback();
+else if(type==='download' && pwd===localStorage.getItem(DOWNLOAD_KEY)) callback();
+else alert("Mot de passe incorrect");
+}
+
+function saveProducts(){
+localStorage.setItem("products",JSON.stringify(products));
+}
+
+function updateCartUI(){
+let total=0;
+cart.forEach(p=> total+=parseInt(p.price||0));
+document.getElementById("cartCount").innerText=cart.length;
+document.getElementById("cartTotal").innerText=total;
+}
+
+function renderProducts(){
+let grid=document.getElementById("productGrid");
+grid.innerHTML="";
+products.forEach((p,i)=>{
+grid.innerHTML+=`
+<div class="bg-gray-800 p-2 rounded text-xs card-neon">
+${p.image ? `<img src="${p.image}" class="w-full h-24 object-cover rounded mb-2">` : ""}
+<h3 class="font-bold">${p.title}</h3>
+<p class="text-gray-400 truncate">${p.description||""}</p>
+<p class="text-cyan-400">${p.price} XOF</p>
+<button onclick="openOrderModal(${i})" class="w-full bg-green-600 mt-1 p-1 rounded text-xs">Commander</button>
+<button onclick="authAction(()=>downloadFile(${i}),'download')" class="w-full bg-indigo-600 mt-1 p-1 rounded text-xs">Télécharger</button>
+</div>`;
+});
+}
+
+function openOrderModal(i){
+selectedProductIndex=i;
+document.getElementById("orderModal").classList.remove("hidden");
+}
+
+function closeOrderModal(){
+document.getElementById("orderModal").classList.add("hidden");
+document.getElementById("clientAddress").value="";
+document.getElementById("clientPhone").value="";
+}
+
+function sendOrderWhatsApp(){
+let address=document.getElementById("clientAddress").value;
+let phone=document.getElementById("clientPhone").value;
+if(!address || !phone){ alert("Veuillez remplir tous les champs"); return; }
+
+let product=products[selectedProductIndex];
+
+let message=
+"Nouvelle commande %0A"+
+"Produit: "+product.title+"%0A"+
+"Prix: "+product.price+" XOF%0A"+
+"Adresse: "+address+"%0A"+
+"Téléphone: "+phone;
+
+window.open("https://wa.me/2290144832464?text="+message,"_blank");
+
+orders.push({
+product:product.title,
+price:product.price,
+address:address,
+phone:phone,
+date:new Date().toLocaleString()
+});
+
+localStorage.setItem("orders",JSON.stringify(orders));
+closeOrderModal();
+alert("Commande envoyée avec succès !");
+}
+
+function downloadFile(i){
+let p=products[i];
+if(p.file) window.open(p.file,"_blank");
+}
+
+/* ===============================
+   AJOUT AUTOMATIQUE DU SUPPORT
+================================= */
+
+if(!products.find(p => p.title === "Apprendre à comprendre le HTML")){
+products.push({
+title:"Apprendre à comprendre le HTML",
+description:"Formation complète pour apprendre et comprendre le HTML de base jusqu’au niveau avancé.",
+price:"1000",
+image:"https://i.ibb.co/chkFBD7q/HTML-tutorial-with-vibrant-design-elements.png",
+file:"https://mega.nz/file/NuJRHYBK#7__vD891MtPAp0WpTF9QTIarSr1DuDxS5Q6pKvgYhOg"
+});
+saveProducts();
+}
+// Ajouter automatiquement la vidéo création fichier HTML
+if(!products.find(p => p.title === "Vidéo sur la création d'un fichier HTML")){
+products.push({
+title:"Vidéo sur la création d'un fichier HTML",
+description:"Formation vidéo complète expliquant étape par étape la création d’un fichier HTML.",
+price:"1000",
+image:"https://i.ibb.co/FknJvmYL/HTML-tutorial-with-vibrant-design-elements.png",
+file:"https://mega.nz/file/hz5hhTqI#mDBzbeTg7gcuh3NoyRgUxaCkg49RYmYuS8QlYoF7-Xw"
+});
+saveProducts();
+}
+// Ajouter automatiquement la vidéo maîtrise CSS
+if(!products.find(p => p.title === "Vidéo sur la maitrise de CSS")){
+products.push({
+title:"Vidéo sur la maitrise de CSS",
+description:"Formation vidéo complète pour maîtriser le CSS et créer des designs modernes et professionnels.",
+price:"1000",
+image:"https://i.ibb.co/ddLjnWq/Chat-GPT-Image-Mar-4-2026-04-10-26-PM.png",
+file:"https://mega.nz/file/t6gBFaYK#ilIZxBATG_FWEcm4HDISVNkijBJoVwFFVQA2rmn2Trg"
+});
+saveProducts();
+}
+// Ajouter automatiquement la vidéo installation Python
+if(!products.find(p => p.title === "Vidéo sur l'installation de python et la création d'un fichier py")){
+products.push({
+title:"Vidéo sur l'installation de python et la création d'un fichier py",
+description:"Formation vidéo complète expliquant l'installation de Python et la création d’un premier fichier .py étape par étape.",
+price:"1000",
+image:"https://i.ibb.co/7NyJsxJH/Chat-GPT-Image-5-mars-2026-01-44-33.png",
+file:"https://mega.nz/file/hiZGRSZY#FcC5SAmt1-TmfIY-R8hZeniAy24sr1HP0azurL2jCKo"
+});
+saveProducts();
+}
+/* =============================== */
+
+renderProducts();
+updateCartUI();
+
+</script>
+
+<!-- Script des publicités -->
+<script>
 document.addEventListener("DOMContentLoaded", () => {
+    const adsData = [
+        { type: "video", url: "https://youtu.be/oYBjKP48aR4?list=TLGGOB86ImZDzGswNTAzMjAyNg" },
+        { type: "video", url: "https://youtu.be/example2" },
+        { type: "link", url: "https://etakouana35-del.github.io/com/" }
+        // ajoute toutes tes pubs ici
+    ];
 
-let adsData = [];
-let currentIndex = 0;
-const rotationTime = 15000;
+    let displayed = new Set();
+    let index = 0;
 
-const container = document.createElement("div");
-container.id = "ads-container";
+    function showNextAd() {
+        if (index >= adsData.length) return; // toutes les pubs affichées
 
-Object.assign(container.style,{
-position:"fixed",
-bottom:"10px",
-right:"10px",
-width:"320px",
-height:"220px",
-background:"rgba(0,0,0,0.9)",
-borderRadius:"10px",
-overflow:"hidden",
-zIndex:"9999",
-boxShadow:"0 0 15px rgba(0,0,0,0.7)",
-transition:"opacity 0.5s"
+        const ad = adsData[index];
+
+        // Ouvre la pub selon le type
+        if (ad.type === "video" || ad.type === "link") {
+            const win = window.open(ad.url, "_blank");
+            if(win) {
+                displayed.add(ad.url);
+            }
+        }
+
+        index++;
+        // Passe à la pub suivante après 2 secondes
+        setTimeout(showNextAd, 2000);
+    }
+
+    showNextAd(); // lance la rotation
 });
-
-document.body.appendChild(container);
-
-const closeBtn = document.createElement("div");
-closeBtn.innerHTML="✕";
-
-Object.assign(closeBtn.style,{
-position:"absolute",
-top:"5px",
-right:"8px",
-color:"#fff",
-cursor:"pointer",
-fontSize:"18px",
-zIndex:"10"
-});
-
-closeBtn.onclick=()=>container.remove();
-
-container.appendChild(closeBtn);
-
-const adArea = document.createElement("div");
-adArea.style.width="100%";
-adArea.style.height="100%";
-container.appendChild(adArea);
-
-
-function getYoutubeId(url){
-let regExp=/^(?:.*v=|youtu\.be\/)([^&]+)/;
-let match=url.match(regExp);
-return match?match[1]:null;
-}
-
-
-function showAd(){
-
-if(adsData.length===0) return;
-
-const ad = adsData[currentIndex];
-
-adArea.innerHTML="";
-
-if(ad.type==="video"){
-
-if(ad.url.includes("youtube")||ad.url.includes("youtu.be")){
-
-const id=getYoutubeId(ad.url);
-
-const iframe=document.createElement("iframe");
-
-iframe.src=`https://www.youtube.com/embed/${id}?autoplay=1&mute=1`;
-
-iframe.allow="autoplay";
-
-Object.assign(iframe.style,{
-width:"100%",
-height:"100%",
-border:"none"
-});
-
-adArea.appendChild(iframe);
-
-}else{
-
-const video=document.createElement("video");
-
-video.src=ad.url;
-video.autoplay=true;
-video.muted=true;
-video.loop=ad.loop||false;
-video.controls=true;
-
-Object.assign(video.style,{
-width:"100%",
-height:"100%"
-});
-
-adArea.appendChild(video);
-
-}
-
-}
-
-if(ad.type==="link"){
-
-const wrapper=document.createElement("div");
-
-Object.assign(wrapper.style,{
-position:"relative",
-width:"100%",
-height:"100%"
-});
-
-const iframe=document.createElement("iframe");
-
-iframe.src=ad.url;
-
-Object.assign(iframe.style,{
-width:"100%",
-height:"100%",
-border:"none"
-});
-
-const overlay=document.createElement("div");
-
-Object.assign(overlay.style,{
-position:"absolute",
-top:"0",
-left:"0",
-width:"100%",
-height:"100%",
-cursor:"pointer"
-});
-
-overlay.onclick=()=>window.open(ad.url,"_blank");
-
-wrapper.appendChild(iframe);
-wrapper.appendChild(overlay);
-
-adArea.appendChild(wrapper);
-
-}
-
-currentIndex++;
-
-if(currentIndex>=adsData.length){
-currentIndex=0;
-}
-
-setTimeout(showAd,rotationTime);
-
-}
-
-
-fetch("https://etakouana35-del.github.io/pubV/pub.json")
-.then(res=>res.json())
-.then(data=>{
-
-adsData=data;
-
-showAd();
-
-})
-.catch(err=>{
-
-console.log("Erreur pub",err);
-
-});
-
-});
+</script>
+</body>
+</html>
