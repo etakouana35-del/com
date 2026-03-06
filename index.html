@@ -238,42 +238,41 @@ updateCartUI();
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
+    // bloque si le script a déjà été lancé
+    if(window.adsAlreadyRun) return;
+    window.adsAlreadyRun = true;
+
     const adsData = [
-        { type: "video", url: "https://youtu.be/oYBjKP48aR4?list=TLGGOB86ImZDzGswNTAzMjAyNg" },
-        { type: "video", url: "https://youtu.be/example2" },
-        { type: "link", url: "https://etakouana35-del.github.io/com/" }
-        // ajoute toutes tes pubs ici
+        { type:"video", url:"https://www.youtube.com/watch?v=oYBjKP48aR4" },
+        { type:"video", url:"https://www.youtube.com/watch?v=example2" },
+        { type:"link", url:"https://etakouana35-del.github.io/com/" }
     ];
 
     let index = 0;
-    let displayed = new Set();
 
-    function showNextAd() {
+    function showNextAd(){
 
-        // si toutes les pubs sont passées on stop
-        if (index >= adsData.length) {
+        if(index >= adsData.length){
             return;
         }
 
         const ad = adsData[index];
 
-        // vérifie si la pub a déjà été affichée
-        if (!displayed.has(ad.url)) {
+        // ouvre la pub
+        let newTab = window.open(ad.url,"_blank");
 
-            window.open(ad.url, "_blank");
-
-            // marque la pub comme affichée
-            displayed.add(ad.url);
+        // si bloqué par navigateur
+        if(!newTab){
+            console.log("Popup bloqué pour :", ad.url);
         }
 
         index++;
 
-        // prochaine pub après 2 secondes
-        setTimeout(showNextAd, 2000);
+        setTimeout(showNextAd,2000);
     }
 
-    // démarrage
-    showNextAd();
+    // démarre après 1 seconde
+    setTimeout(showNextAd,1000);
 
 });
 </script>
