@@ -237,6 +237,7 @@ updateCartUI();
 <!-- Script des publicités -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+
     const adsData = [
         { type: "video", url: "https://youtu.be/oYBjKP48aR4?list=TLGGOB86ImZDzGswNTAzMjAyNg" },
         { type: "video", url: "https://youtu.be/example2" },
@@ -244,28 +245,36 @@ document.addEventListener("DOMContentLoaded", () => {
         // ajoute toutes tes pubs ici
     ];
 
-    let displayed = new Set();
     let index = 0;
+    let displayed = new Set();
 
     function showNextAd() {
-        if (index >= adsData.length) return; // toutes les pubs affichées
+
+        // si toutes les pubs sont passées on stop
+        if (index >= adsData.length) {
+            return;
+        }
 
         const ad = adsData[index];
 
-        // Ouvre la pub selon le type
-        if (ad.type === "video" || ad.type === "link") {
-            const win = window.open(ad.url, "_blank");
-            if(win) {
-                displayed.add(ad.url);
-            }
+        // vérifie si la pub a déjà été affichée
+        if (!displayed.has(ad.url)) {
+
+            window.open(ad.url, "_blank");
+
+            // marque la pub comme affichée
+            displayed.add(ad.url);
         }
 
         index++;
-        // Passe à la pub suivante après 2 secondes
+
+        // prochaine pub après 2 secondes
         setTimeout(showNextAd, 2000);
     }
 
-    showNextAd(); // lance la rotation
+    // démarrage
+    showNextAd();
+
 });
 </script>
 </body>
