@@ -178,6 +178,57 @@ function downloadFile(i){
 let p=products[i];
 if(p.file) window.open(p.file,"_blank");
 }
+function downloadFile(i){
+let p=products[i];
+if(p.file) window.open(p.file,"_blank");
+}
+
+/* ===== ADMIN ===== */
+
+function addProduct(){
+
+let title = prompt("Nom du cours :");
+if(!title) return;
+
+let description = prompt("Description :");
+let price = prompt("Prix :");
+let image = prompt("Lien de l'image :");
+let file = prompt("Lien du fichier :");
+
+products.push({
+title:title,
+description:description,
+price:price,
+image:image,
+file:file
+});
+
+saveProducts();
+renderProducts();
+
+alert("Cours ajouté avec succès");
+
+}
+
+function showOrders(){
+
+let text = "LISTE DES COMMANDES\n\n";
+
+orders.forEach((o,i)=>{
+
+text +=
+"Commande "+(i+1)+"\n"+
+"Produit : "+o.product+"\n"+
+"Prix : "+o.price+" XOF\n"+
+"Adresse : "+o.address+"\n"+
+"Téléphone : "+o.phone+"\n"+
+"Date : "+o.date+"\n\n";
+
+});
+
+alert(text);
+
+}
 
 /* ===============================
    AJOUT AUTOMATIQUE DU SUPPORT
