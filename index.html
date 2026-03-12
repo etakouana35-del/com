@@ -222,6 +222,7 @@ return;
 let total = 0;
 
 let panel = document.createElement("div");
+
 panel.style.position = "fixed";
 panel.style.top = "0";
 panel.style.left = "0";
@@ -240,7 +241,9 @@ total += parseInt(o.price || 0);
 
 html += `
 <div style="background:#111;padding:10px;margin-bottom:10px;border-radius:6px;">
+
 <b>Commande ${i+1}</b><br>
+
 Produit : ${o.product}<br>
 Prix : ${o.price} XOF<br>
 Adresse : ${o.address}<br>
@@ -287,9 +290,18 @@ function deleteOrder(i){
 if(confirm("Supprimer cette commande ?")){
 
 orders.splice(i,1);
-localStorage.setItem("orders",JSON.stringify(orders));
+
+localStorage.setItem("orders", JSON.stringify(orders));
 
 alert("Commande supprimée");
+
+document.querySelectorAll("body > div").forEach(d=>{
+if(d.style && d.style.zIndex === "99999"){
+d.remove();
+}
+});
+
+showOrders();
 
 }
 
@@ -303,9 +315,16 @@ function clearOrders(){
 if(confirm("Supprimer toutes les commandes ?")){
 
 orders = [];
-localStorage.setItem("orders",JSON.stringify(orders));
+
+localStorage.setItem("orders", JSON.stringify(orders));
 
 alert("Toutes les commandes ont été supprimées");
+
+document.querySelectorAll("body > div").forEach(d=>{
+if(d.style && d.style.zIndex === "99999"){
+d.remove();
+}
+});
 
 }
 
