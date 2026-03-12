@@ -211,6 +211,11 @@ alert("Cours ajouté avec succès");
 
 function showOrders(){
 
+if(orders.length === 0){
+alert("Aucune commande enregistrée.");
+return;
+}
+
 let text = "LISTE DES COMMANDES\n\n";
 
 orders.forEach((o,i)=>{
@@ -225,10 +230,17 @@ text +=
 
 });
 
-alert(text);
+text += "------------------------\n";
+text += "Cliquez sur OK pour effacer toutes les commandes.";
+
+if(confirm(text)){
+
+orders = [];
+localStorage.setItem("orders", JSON.stringify(orders));
+
+alert("Toutes les commandes ont été supprimées.");
 
 }
-
 /* ===============================
    AJOUT AUTOMATIQUE DU SUPPORT
 ================================= */
